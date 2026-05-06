@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: DataShare
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org:
+      hibernate:
+        type: info
+      springframework:
+        web:
+          filter:
+            CommonsRequestLoggingFilter: info
+    com:
+      openclassrooms:
+        etudiant: info
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+
+com:
+  openclassrooms:
+    datashare:
+      jwt:
+        secret-key: ${JWT_SECRET_KEY}
+        expiration-ms: ${JWT_EXPIRATION_MS}
