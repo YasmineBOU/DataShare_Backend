@@ -27,19 +27,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileController {
 
-    private final FileService fileService;
-    private final FileDtoMapper fileDtoMapper;
+        private final FileService fileService;
+        private final FileDtoMapper fileDtoMapper;
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadFile(@Valid @ModelAttribute FileUploadDTO fileUploadDTO) {
-        log.info("\n\n\n********Received file upload request: {}\n\n\n",
-                fileUploadDTO);
-        String fileLink = fileService.uploadFile(
-                fileUploadDTO.getFile(),
-                fileDtoMapper.toEntity(fileUploadDTO));
-        return ResponseEntity.ok(Map.of(
-                "message", "File uploaded successfully !",
-                "fileLink", fileLink));
-    }
+        @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        public ResponseEntity<?> uploadFile(@Valid @ModelAttribute FileUploadDTO fileUploadDTO) {
+                log.info("\n\n\n********Received file upload request: {}\n\n\n",
+                                fileUploadDTO);
+                String fileLink = fileService.uploadFile(
+                                fileUploadDTO.getFile(),
+                                fileDtoMapper.toEntity(fileUploadDTO),
+                                fileUploadDTO.getExpirationDays());
+                return ResponseEntity.ok(Map.of(
+                                "message", "File uploaded successfully !",
+                                "fileLink", fileLink));
+        }
 
 }

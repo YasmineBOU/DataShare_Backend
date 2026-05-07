@@ -47,3 +47,11 @@ com:
       jwt:
         secret-key: ${JWT_SECRET_KEY}
         expiration-ms: ${JWT_EXPIRATION_MS}
+
+# Backblaze B2 Configuration
+b2:
+  endpoint: ${B2_ENDPOINT}
+  region: ${B2_REGION}
+  bucket-name: ${B2_BUCKET_NAME}
+  key-id: ${B2_KEY_ID}
+  application-key: ${B2_APPLICATION_KEY}

@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import lombok.AllArgsConstructor;
@@ -42,7 +44,7 @@ public class FileData {
     @Column(name = "file_password")
     private String filePassword;
 
-    @NotBlank
+    @NotNull
     @Column(name = "expiration_date", nullable = false)
     private LocalDateTime expirationDate;
 
@@ -51,10 +53,10 @@ public class FileData {
     private String hash;
 
     @NotBlank
-    @Column(name = "file_link", nullable = false)
+    @Column(name = "file_link", nullable = false, columnDefinition = "TEXT")
     private String fileLink;
 
-    @NotBlank
+    @NotNull
     @Column(name = "file_size", nullable = false)
     private long fileSize;
 

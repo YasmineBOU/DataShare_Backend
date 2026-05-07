@@ -123,6 +123,22 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- BLAKE3 Checksum Algorithm for compatibility between frontend and backend -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>1.78.1</version> 
+		</dependency>
+
+		<!-- AWS S3 SDK -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.20.33</version>
+		</dependency>
+
+
+
 	</dependencies>
 
 	<dependencyManagement>
