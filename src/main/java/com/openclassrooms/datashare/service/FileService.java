@@ -2,6 +2,7 @@ package com.openclassrooms.datashare.service;
 
 import com.openclassrooms.datashare.dto.FileInfoDTO;
 import com.openclassrooms.datashare.entities.FileData;
+import com.openclassrooms.datashare.entities.User;
 import com.openclassrooms.datashare.repository.FileRepository;
 import com.openclassrooms.datashare.utils.FileUtils;
 import com.openclassrooms.datashare.handler.exceptions.*;
@@ -114,7 +115,8 @@ public class FileService {
         }
     }
 
-    public Iterable<FileInfoDTO> listFiles(String email) {
+    public Iterable<FileInfoDTO> listFiles(User authenticatedUser, String email) {
+        Assert.notNull(authenticatedUser, "Authenticated user must not be null");
         Assert.notNull(email, "Email must not be null");
         log.info("Listing files for email: {}", email);
         log.info("Files found: {}", fileDataRepository.findFilesByEmail(email));
