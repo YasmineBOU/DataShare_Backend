@@ -83,6 +83,16 @@ public class FileExceptionHandler {
                                 .body(getErrorDetails(fileLinkGenerationException, request));
         }
 
+        @ExceptionHandler(value = { FileDeletionException.class })
+        protected ResponseEntity<Object> handleFileDeletionException(
+                        FileDeletionException fileDeletionException,
+                        WebRequest request) {
+                logError(fileDeletionException);
+                return ResponseEntity
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(getErrorDetails(fileDeletionException, request));
+        }
+
         private void logError(Exception exception) {
                 org.slf4j.LoggerFactory.getLogger(getClass()).error(exception.getMessage(), exception);
         }

@@ -94,4 +94,13 @@ public class BackblazeB2Service {
         return prefix + originalFilename + "_" + UUID.randomUUID();
     }
 
+    public void deleteFile(String key) {
+        try {
+            s3Client.deleteObject(builder -> builder.bucket(properties.getBucketName()).key(key).build());
+        } catch (Exception e) {
+            log.error("Failed to delete file with key: '{}'", key, e);
+            throw new RuntimeException("Failed to delete file: " + e.getMessage(), e);
+        }
+    }
+
 }

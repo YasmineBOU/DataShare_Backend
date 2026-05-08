@@ -123,4 +123,24 @@ public class FileService {
         return fileDataRepository.findFilesByEmail(email);
     }
 
+    public void deleteFile(User authenticatedUser, Long id) {
+        Assert.notNull(authenticatedUser, "Authenticated user must not be null");
+        Assert.notNull(id, "File ID must not be null");
+        Assert.isTrue(id > 0, "File ID must be a positive number");
+
+        Optional<FileData> fileDataOptional = fileDataRepository.findById(id);
+        if (fileDataOptional.isEmpty()) {
+            log.warn("File with id {} not found for deletion", id);
+            throw new IllegalStateException("File with id " + id + " not found in database");
+        }
+        FileData fileData = fileDataOptional.get();
+        try {
+            backblazeB2Service.deleteFile(fileData.getFileKey());
+            fileDataRepository.deleteById(id);
+        } catch (Exception e) {
+            log.error("Failed to delete file with id {}: {}", id, e.getMessage(), e);
+            throw new FileDeletionException("Failed to delete file: " + e.getMessage(), e);
+        }
+    }
+
 }

@@ -8,8 +8,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -73,5 +75,15 @@ public class FileController {
                 return ResponseEntity.ok(Map.of(
                                 "message", "Files retrieved successfully !",
                                 "files", fileService.listFiles(authenticatedUser, email)));
+        }
+
+        @DeleteMapping(value = "/delete/{id}")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<?> deleteFile(
+                        @AuthenticationPrincipal User authenticatedUser,
+                        @PathVariable Long id) {
+                fileService.deleteFile(authenticatedUser, id);
+                return ResponseEntity.ok(Map.of(
+                                "message", "File deleted successfully !"));
         }
 }
