@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import org.springframework.cglib.core.Local;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.Assert;
@@ -26,6 +27,7 @@ public class FileService {
 
     private final BackblazeB2Service backblazeB2Service;
     private final FileRepository fileDataRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public String uploadFile(MultipartFile uploadedFile, FileData fileData, int expirationDays) {
 
@@ -52,9 +54,14 @@ public class FileService {
             }
 
             // Save the file metadata on the database
+            String filePassword = fileData.getFilePassword();
+            if (filePassword != null && !filePassword.isEmpty()) {
+                fileData.setFilePassword(passwordEncoder.encode(filePassword));
+            }
             LocalDateTime expirationDate = LocalDateTime.now().plusDays(expirationDays);
             fileData.setExpirationDate(expirationDate);
             fileData.setFileLink(presignedUrl);
+            fileData.setUniqueFilename(key); // will be used to identify the file for download and delete operations
             fileDataRepository.save(fileData);
 
             return presignedUrl;
@@ -64,5 +71,11 @@ public class FileService {
             return "Error occurred while uploading file";
         }
     }
+
+    // public void deleteFile(FileData fileData) {
+    // String key = fileData.getUniqueFilename();
+    // backblazeB2Service.deleteFile(key);
+    // fileDataRepository.delete(fileData);
+    // }
 
 }

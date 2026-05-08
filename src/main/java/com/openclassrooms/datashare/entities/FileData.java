@@ -40,6 +40,11 @@ public class FileData {
     @Column(name = "filename", nullable = false)
     private String filename;
 
+    // Unique filename with UUID stored in Backblaze B2
+    @NotBlank
+    @Column(name = "unique_filename", nullable = false)
+    private String uniqueFilename;
+
     // Optional password for file access
     @Column(name = "file_password")
     private String filePassword;
