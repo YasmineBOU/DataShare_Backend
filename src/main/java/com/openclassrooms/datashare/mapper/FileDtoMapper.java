@@ -14,5 +14,6 @@ public interface FileDtoMapper {
     @Mapping(target = "expirationDate", ignore = true)
     @Mapping(target = "fileLink", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "fileKey", ignore = true)
     FileData toEntity(FileUploadDTO fileUploadDTO);
 }

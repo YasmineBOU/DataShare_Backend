@@ -42,8 +42,8 @@ public class FileData {
 
     // Unique filename with UUID stored in Backblaze B2
     @NotBlank
-    @Column(name = "unique_filename", nullable = false)
-    private String uniqueFilename;
+    @Column(name = "file_key", nullable = false)
+    private String fileKey;
 
     // Optional password for file access
     @Column(name = "file_password")
