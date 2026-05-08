@@ -10,6 +10,8 @@ import lombok.Data;
 public class FileInfoDTO {
     private Long id;
     private String fileName;
+    private long fileSize;
+    private LocalDateTime createdAt;
     private LocalDateTime expirationDate;
     private Boolean hasPassword;
 }

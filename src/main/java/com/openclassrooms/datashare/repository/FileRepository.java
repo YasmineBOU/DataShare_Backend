@@ -19,6 +19,8 @@ public interface FileRepository extends JpaRepository<FileData, Long> {
     @Query("SELECT new com.openclassrooms.datashare.dto.FileInfoDTO(" +
             "u.id, " +
             "u.filename, " +
+            "u.fileSize, " +
+            "u.createdAt, " +
             "u.expirationDate, " +
             "CASE WHEN u.filePassword IS NOT NULL AND u.filePassword != '' THEN true ELSE false END) " +
             "FROM FileData u WHERE u.email = :email")
