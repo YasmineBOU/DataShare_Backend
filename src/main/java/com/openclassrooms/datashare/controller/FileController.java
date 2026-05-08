@@ -6,13 +6,17 @@ import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.openclassrooms.datashare.dto.FileDownloadDTO;
 import com.openclassrooms.datashare.dto.FileUploadDTO;
 import com.openclassrooms.datashare.entities.FileData;
 import com.openclassrooms.datashare.mapper.FileDtoMapper;
@@ -43,4 +47,24 @@ public class FileController {
                                 "fileLink", fileLink));
         }
 
+        @GetMapping(value = "/download")
+        public ResponseEntity<?> downloadFile(@Valid @RequestBody FileDownloadDTO fileDownloadDTO) throws Exception {
+                log.info("\n\n\n********Received file download request for fileKey: '{}'\n\n\n",
+                                fileDownloadDTO.getFileKey());
+
+                String fileLink = fileService.downloadFile(
+                                fileDownloadDTO.getFileKey(),
+                                fileDownloadDTO.getFilePassword());
+
+                return ResponseEntity.ok(Map.of(
+                                "message", "File link retrieved successfully !",
+                                "fileLink", fileLink));
+        }
+
+        @GetMapping(value = "/list")
+        public ResponseEntity<?> listFiles(@RequestParam String email) {
+                return ResponseEntity.ok(Map.of(
+                                "message", "Files retrieved successfully !",
+                                "files", fileService.listFiles(email)));
+        }
 }
