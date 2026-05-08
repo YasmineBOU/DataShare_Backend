@@ -32,8 +32,9 @@ public class FileExpirationCleaner {
             try {
                 // Delete the file from Backblaze B2 and
                 backblazeB2Service.deleteFile(file.getFileKey());
-                // Remove the record from the database
-                fileRepository.delete(file);
+                // Set the 'is_deleted' to true for the record from on database
+                file.setDeleted(true);
+                fileRepository.save(file);
                 log.info("Expired file deleted : " + file.getFileKey());
             } catch (Exception e) {
                 log.warn("Got error while deleting file " + file.getFileKey() + " : " + e.getMessage());
