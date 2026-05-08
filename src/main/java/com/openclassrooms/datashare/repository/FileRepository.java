@@ -5,8 +5,10 @@ import com.openclassrooms.datashare.dto.FileInfoDTO;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,4 +27,8 @@ public interface FileRepository extends JpaRepository<FileData, Long> {
             "CASE WHEN u.filePassword IS NOT NULL AND u.filePassword != '' THEN true ELSE false END) " +
             "FROM FileData u WHERE u.email = :email")
     List<FileInfoDTO> findFilesByEmail(String email);
+
+    @Query("SELECT f FROM FileData f WHERE f.expirationDate < :currentDate")
+    List<FileData> findExpiredFiles(@Param("currentDate") LocalDateTime currentDate);
+
 }
