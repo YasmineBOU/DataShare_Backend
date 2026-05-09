@@ -9,7 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class FileInfoDTO {
     private Long id;
-    private String fileName;
+    private String filename;
     private long fileSize;
     private LocalDateTime createdAt;
     private LocalDateTime expirationDate;
