@@ -4,8 +4,15 @@ Backend de base pour un site de partage de fichiers avec authentification JWT et
 
 ## Configuration du backend
 
-    - name: DataShare
-    - port: 8080
+Les paramètres de démarrage sont centralisés dans `.env` :
+
+- `SERVER_PORT=8443`
+- `SERVER_SSL_ENABLED=true`
+- `SERVER_SSL_KEY_STORE=ssl\\datashare-dev.p12`
+- `SERVER_SSL_KEY_STORE_PASSWORD=changeit`
+- `SERVER_SSL_KEY_STORE_TYPE=PKCS12`
+- `SERVER_SSL_KEY_ALIAS=datashare-dev`
+- `COOKIE_SECURE=true`
 
 ## Pré-requis pour le bon fonctionnement du service :
 
@@ -17,14 +24,16 @@ Backend de base pour un site de partage de fichiers avec authentification JWT et
 ## Démarrage du backend
 Pour démarrer le projet backend, il faut : 
 - avoir démarré Docker-Desktop sur votre poste de travail local.
-- dans une console, se placer à la racine du projet et exécuter la commande Maven suivante :
+- dans une console, se placer à la racine du projet et exécuter le script suivant :
 ```
-mvn spring-boot:run
+run-java26.bat
 ```
 
     Cette commande va : 
-     - initialiser le container Docker qui contient la base de données PostgreSQL 
-     - lancer le serveur du backend et le connecter à la base de données précédemment créée
+     - lire les variables de `.env`
+     - générer le keystore local s'il n'existe pas encore
+     - lancer le serveur du backend en HTTPS sur `https://localhost:8443`
+     - connecter le backend à la base de données PostgreSQL
 
 Les traces logs devraient ressemblées à ceci : 
 ```

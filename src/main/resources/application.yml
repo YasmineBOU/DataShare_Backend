@@ -19,6 +19,15 @@ spring:
   #     max-file-size: 10MB
   #     max-request-size: 10MB
 
+server:
+  port: ${SERVER_PORT:8443}
+  ssl:
+    enabled: ${SERVER_SSL_ENABLED:true}
+    key-store: ${SERVER_SSL_KEY_STORE:ssl/datashare-dev.p12}
+    key-store-password: ${SERVER_SSL_KEY_STORE_PASSWORD:changeit}
+    key-store-type: ${SERVER_SSL_KEY_STORE_TYPE:PKCS12}
+    key-alias: ${SERVER_SSL_KEY_ALIAS:datashare-dev}
+
 logging:
   level:
     org.springframework.security: DEBUG
@@ -40,13 +49,14 @@ management:
       exposure:
         include: '*'
 
-
 com:
   openclassrooms:
     datashare:
       jwt:
         secret-key: ${JWT_SECRET_KEY}
         expiration-ms: ${JWT_EXPIRATION_MS}
+      cookie:
+        secure: ${COOKIE_SECURE:true}
 
 # Backblaze B2 Configuration
 b2:

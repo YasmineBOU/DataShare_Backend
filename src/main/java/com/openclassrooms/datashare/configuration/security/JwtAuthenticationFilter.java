@@ -2,6 +2,7 @@ package com.openclassrooms.datashare.configuration.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -19,12 +20,18 @@ import org.slf4j.LoggerFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final String AUTH_TOKEN_COOKIE_NAME = "authToken";
+    private static final Set<String> PUBLIC_PATHS = Set.of(
+            "/api/login",
+            "/api/register",
+            "/api/logout");
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -34,15 +41,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @org.springframework.lang.NonNull HttpServletResponse response,
             @org.springframework.lang.NonNull FilterChain filterChain) throws ServletException, IOException {
 
+        if (PUBLIC_PATHS.contains(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String jwtToken = null;
+        String usernameTemp = null;
+
+        // Try to get token from Authorization header first (for backward compatibility)
         final String authHeader = request.getHeader("Authorization");
         final String tokenPrefix = "Bearer ";
 
-        String usernameTemp = null;
-        String jwtToken = null;
-
-        // Check if Authorization header is present and starts with Bearer
         if (authHeader != null && authHeader.startsWith(tokenPrefix)) {
             jwtToken = authHeader.substring(tokenPrefix.length());
+        }
+
+        // If not found in header, try to get token from HttpOnly cookie
+        if (jwtToken == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (AUTH_TOKEN_COOKIE_NAME.equals(cookie.getName())) {
+                        jwtToken = cookie.getValue();
+                        log.debug("Token found in HttpOnly cookie");
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Validate token and extract username
+        if (jwtToken != null) {
             try {
                 usernameTemp = jwtService.validateTokenAndGetUsername(jwtToken);
             } catch (RuntimeException e) {
