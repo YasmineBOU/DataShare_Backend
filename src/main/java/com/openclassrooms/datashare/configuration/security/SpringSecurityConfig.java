@@ -20,6 +20,14 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableWebSecurity
 public class SpringSecurityConfig {
 
+    private static final String[] PUBLIC_ENDPOINTS = {
+            "/api/register",
+            "/api/login",
+            "/api/logout",
+            "/api/files/upload",
+            "/api/files/download"
+    };
+
     @Autowired
     private CustomUserDetailService customUserDetailService;
 
@@ -56,8 +64,7 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // No auth needed on :
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/api/register", "/api/login", "/api/files/upload", "/api/files/download")
-                        .permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         // Others protected routes will be added here.
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter,
