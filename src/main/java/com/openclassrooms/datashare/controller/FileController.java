@@ -4,6 +4,7 @@ import com.openclassrooms.datashare.service.FileService;
 
 import java.util.Map;
 
+import org.apache.tomcat.jni.FileInfo;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.openclassrooms.datashare.dto.AuthDTO;
 import com.openclassrooms.datashare.dto.FileDownloadDTO;
+import com.openclassrooms.datashare.dto.FileInfoDTO;
 import com.openclassrooms.datashare.dto.FileUploadDTO;
 import com.openclassrooms.datashare.entities.FileData;
 import com.openclassrooms.datashare.entities.User;
@@ -75,6 +77,18 @@ public class FileController {
                 return ResponseEntity.ok(Map.of(
                                 "message", "Files retrieved successfully !",
                                 "files", fileService.listFiles(authenticatedUser, email)));
+        }
+
+        @GetMapping(value = "/{id}")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<?> getFileInfo(
+                        @AuthenticationPrincipal User authenticatedUser,
+                        @PathVariable Long id) throws Exception {
+
+                FileInfoDTO fileInfo = fileService.getFileInfo(authenticatedUser, id);
+                return ResponseEntity.ok(Map.of(
+                                "message", "File info retrieved successfully !",
+                                "info", fileInfo));
         }
 
         @DeleteMapping(value = "/delete/{id}")
