@@ -133,8 +133,14 @@ public class FileService {
         FileData file = fileData.get();
         try {
             backblazeB2Service.deleteFile(file.getFileKey());
-            file.setDeleted(true);
-            fileDataRepository.save(file);
+            // Hard delete: remove the file record from the database
+            fileDataRepository.delete(file);
+            // Soft delete: mark the file as deleted in the database without actually
+            // removing the record (uncomment if you want to proceed this way)
+            /*
+             * file.setDeleted(true);
+             * fileDataRepository.save(file);
+             */
         } catch (Exception e) {
             log.error("Failed to delete file with id {}: {}", id, e.getMessage(), e);
             throw new FileDeletionException("Failed to delete file: " + e.getMessage(), e);
