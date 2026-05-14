@@ -31,4 +31,14 @@ public interface FileRepository extends JpaRepository<FileData, Long> {
     @Query("SELECT f FROM FileData f WHERE f.expirationDate < :currentDate")
     List<FileData> findExpiredFiles(@Param("currentDate") LocalDateTime currentDate);
 
+    @Query("SELECT new com.openclassrooms.datashare.dto.FileInfoDTO(" +
+            "u.id, " +
+            "u.filename, " +
+            "u.fileSize, " +
+            "u.createdAt, " +
+            "u.expirationDate, " +
+            "CASE WHEN u.filePassword IS NOT NULL AND u.filePassword != '' THEN true ELSE false END) " +
+            "FROM FileData u WHERE u.id = :fileId")
+    Optional<FileInfoDTO> findFileInfoById(@Param("fileId") Long fileId);
+
 }

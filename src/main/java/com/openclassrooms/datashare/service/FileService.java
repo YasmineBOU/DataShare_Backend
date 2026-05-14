@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.apache.tomcat.jni.FileInfo;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,7 +60,6 @@ public class FileService {
             // Generate a presigned URL for the uploaded file with the specified expiration
             // time
             presignedUrl = backblazeB2Service.generatePresignedUrl(key, Duration.ofDays(expirationDays)).toString();
-            log.info("Generated presigned URL : {}", presignedUrl);
         } catch (Exception e) {
             log.error("Failed to generate presigned URL for key: {}", key, e);
             throw new FileLinkGenerationException("Failed to generate presigned URL: " + e.getMessage(), e);
@@ -83,22 +83,38 @@ public class FileService {
         return presignedUrl;
     }
 
-    public String downloadFile(String fileKey, String filePassword) throws Exception {
-        Assert.notNull(fileKey, "File key must not be null");
+    public String downloadFile(Long id, String filePassword) throws Exception {
+        Assert.notNull(id, "File ID must not be null");
 
-        Optional<FileData> fileData = fileDataRepository.findByFileKey(fileKey);
+        Optional<FileData> fileData = fileDataRepository.findById(id);
         if (fileData.isEmpty()) {
-            log.warn("File with key {} not found", fileKey);
+            log.warn("File with ID {} not found", id);
             throw new FileNotFoundException("File not found");
         }
         FileData file = fileData.get();
         if (file.getExpirationDate().isBefore(LocalDateTime.now())) {
-            log.warn("File with key {} has expired", fileKey);
+            log.warn("File with ID {} has expired", id);
             throw new FileExpiredException("File has expired");
         }
-        if (filePassword != null && file.getFilePassword() != null && !file.getFilePassword().isEmpty()) {
-            if (!passwordEncoder.matches(filePassword, file.getFilePassword())) {
-                log.warn("Invalid password for file with key '{}'", fileKey);
+
+        String storedFilePassword = file.getFilePassword();
+        // Password provided but file does not have a passwordstoredFilePassword));
+        if (storedFilePassword == null || storedFilePassword.isEmpty()) {
+            if (filePassword != null && !filePassword.isEmpty()) {
+                log.warn("File with ID {} does not have a password but a password was provided", id);
+                throw new InvalidPasswordException("File does not have a password");
+            }
+        }
+        // File has a password
+        else {
+            // No password provided by the user
+            if (filePassword == null || filePassword.isEmpty()) {
+                log.warn("File with ID {} has a password but no password was provided", id);
+                throw new InvalidPasswordException("Password is required to access this file");
+            }
+            // Password provided but does not match the stored password
+            else if (!passwordEncoder.matches(filePassword, storedFilePassword)) {
+                log.warn("Invalid password provided for file with ID '{}'", id);
                 throw new InvalidPasswordException("Invalid password");
             }
         }
@@ -107,7 +123,7 @@ public class FileService {
         if (fileLink != null && !fileLink.isEmpty()) {
             return fileLink;
         } else {
-            log.error("File link is null for file with key '{}'", fileKey);
+            log.error("File link is null for file with ID '{}'", id);
             throw new FileLinkNullException("File link is null");
         }
     }
@@ -115,9 +131,17 @@ public class FileService {
     public Iterable<FileInfoDTO> listFiles(User authenticatedUser, String email) {
         Assert.notNull(authenticatedUser, "Authenticated user must not be null");
         Assert.notNull(email, "Email must not be null");
-        log.info("Listing files for email: {}", email);
-        log.info("Files found: {}", fileDataRepository.findFilesByEmail(email));
         return fileDataRepository.findFilesByEmail(email);
+    }
+
+    public FileInfoDTO getFileInfo(Long fileId) throws Exception {
+        Assert.notNull(fileId, "File ID must not be null");
+        Optional<FileInfoDTO> fileInfo = fileDataRepository.findFileInfoById(fileId);
+        if (fileInfo.isEmpty()) {
+            log.warn("No file found for file ID: {}", fileId);
+            throw new FileNotFoundException("No file found for file ID: " + fileId);
+        }
+        return fileInfo.get();
     }
 
     public void deleteFile(User authenticatedUser, Long id) {

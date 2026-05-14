@@ -31,7 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Set<String> PUBLIC_PATHS = Set.of(
             "/api/login",
             "/api/register",
-            "/api/logout");
+            "/api/logout",
+            "/api/files/upload",
+            "/api/files/download");
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -41,7 +43,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @org.springframework.lang.NonNull HttpServletResponse response,
             @org.springframework.lang.NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        if (PUBLIC_PATHS.contains(request.getRequestURI())) {
+        String requestUri = request.getRequestURI();
+        if (PUBLIC_PATHS.contains(requestUri) || requestUri.startsWith("/api/files/info/")) {
             filterChain.doFilter(request, response);
             return;
         }

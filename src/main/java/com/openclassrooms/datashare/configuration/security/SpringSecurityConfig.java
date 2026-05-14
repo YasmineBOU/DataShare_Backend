@@ -25,7 +25,8 @@ public class SpringSecurityConfig {
             "/api/login",
             "/api/logout",
             "/api/files/upload",
-            "/api/files/download"
+            "/api/files/download",
+            "/api/files/info/*"
     };
 
     @Autowired

@@ -44,8 +44,6 @@ public class FileController {
 
         @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         public ResponseEntity<?> uploadFile(@Valid @ModelAttribute FileUploadDTO fileUploadDTO) {
-                log.info("\n\n\n********Received file upload request: {}\n\n\n",
-                                fileUploadDTO);
                 String fileLink = fileService.uploadFile(
                                 fileUploadDTO.getFile(),
                                 fileDtoMapper.toEntity(fileUploadDTO),
@@ -55,13 +53,11 @@ public class FileController {
                                 "fileLink", fileLink));
         }
 
-        @GetMapping(value = "/download")
+        @PostMapping(value = "/download")
         public ResponseEntity<?> downloadFile(@Valid @RequestBody FileDownloadDTO fileDownloadDTO) throws Exception {
-                log.info("\n\n\n********Received file download request for fileKey: '{}'\n\n\n",
-                                fileDownloadDTO.getFileKey());
 
                 String fileLink = fileService.downloadFile(
-                                fileDownloadDTO.getFileKey(),
+                                fileDownloadDTO.getId(),
                                 fileDownloadDTO.getFilePassword());
 
                 return ResponseEntity.ok(Map.of(
@@ -85,10 +81,16 @@ public class FileController {
                         @AuthenticationPrincipal User authenticatedUser,
                         @PathVariable Long id) throws Exception {
 
-                FileInfoDTO fileInfo = fileService.getFileInfo(authenticatedUser, id);
-                return ResponseEntity.ok(Map.of(
-                                "message", "File info retrieved successfully !",
-                                "info", fileInfo));
+                FileInfoDTO fileInfo = fileService.getFileInfo(id);
+                return ResponseEntity.ok(fileInfo);
+        }
+
+        @GetMapping(value = "/info/{id}")
+        public ResponseEntity<?> getPublicFileInfo(
+                        @PathVariable Long id) throws Exception {
+
+                FileInfoDTO fileInfo = fileService.getFileInfo(id);
+                return ResponseEntity.ok(fileInfo);
         }
 
         @DeleteMapping(value = "/delete/{id}")

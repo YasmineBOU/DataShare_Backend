@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class FileDownloadDTO {
-    private String fileKey;
+    private Long id;
     private String filePassword; // Optional password for files that require one
 }
