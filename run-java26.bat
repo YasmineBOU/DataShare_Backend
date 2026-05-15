@@ -30,4 +30,8 @@ if not exist "%KEYSTORE_PATH%" (
 		-ext SAN=dns:localhost,ip:127.0.0.1
 )
 
+REM Configure JVM memory for large file uploads
+REM Reduced to 2G max to avoid Windows pagefile exhaustion on 800MB+ uploads
+set "MAVEN_OPTS=-Xmx2G -Xms1G"
+
 mvn clean install && mvn spring-boot:run

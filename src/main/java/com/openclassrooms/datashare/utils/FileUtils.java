@@ -5,6 +5,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class FileUtils {
 
@@ -26,10 +28,37 @@ public class FileUtils {
         }
 
         try (InputStream inputStream = file.getInputStream()) {
-            byte[] fileBytes = inputStream.readAllBytes();
-
+            // Process file in chunks to avoid loading entire large files into memory
             Blake3Digest digest = new Blake3Digest();
-            digest.update(fileBytes, 0, fileBytes.length);
+            byte[] buffer = new byte[8192]; // 8 KB chunks
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                digest.update(buffer, 0, bytesRead);
+            }
+
+            byte[] hashBytes = new byte[digest.getDigestSize()];
+            digest.doFinal(hashBytes, 0);
+
+            return bytesToHex(hashBytes);
+        }
+    }
+
+    public static String calculateFileHashFromPath(Path filePath) throws IOException {
+        if (filePath == null || !Files.exists(filePath)) {
+            throw new IllegalArgumentException("File path must exist");
+        }
+
+        try (InputStream inputStream = Files.newInputStream(filePath)) {
+            // Process file in chunks to avoid loading entire large files into memory
+            Blake3Digest digest = new Blake3Digest();
+            byte[] buffer = new byte[8192]; // 8 KB chunks
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                digest.update(buffer, 0, bytesRead);
+            }
+
             byte[] hashBytes = new byte[digest.getDigestSize()];
             digest.doFinal(hashBytes, 0);
 

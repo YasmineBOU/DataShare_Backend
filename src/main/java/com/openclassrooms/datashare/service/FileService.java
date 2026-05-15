@@ -36,51 +36,39 @@ public class FileService {
     public String uploadFile(MultipartFile uploadedFile, FileData fileData, int expirationDays) {
 
         Assert.notNull(uploadedFile, "Uploaded file must not be null");
-        String fileHash = null;
+
         try {
-            fileHash = FileUtils.calculateFileHash(uploadedFile);
+            String fileHash = FileUtils.calculateFileHash(uploadedFile);
+
+            if (!fileHash.equals(fileData.getHash())) {
+                log.error("File hash mismatch: expected '{}', calculated '{}'", fileData.getHash(), fileHash);
+                throw new FileHashMismatchException("File hash mismatch");
+            }
+
+            String key = backblazeB2Service.uploadFile(uploadedFile, fileData.getEmail());
+            String presignedUrl = backblazeB2Service.generatePresignedUrl(key, Duration.ofDays(expirationDays)).toString();
+
+            if (presignedUrl == null || presignedUrl.isEmpty()) {
+                log.error("Presigned URL is empty for key: {}", key);
+                throw new FileLinkGenerationException("Presigned URL is empty");
+            }
+
+            String filePassword = fileData.getFilePassword();
+            if (filePassword != null && !filePassword.isEmpty()) {
+                fileData.setFilePassword(passwordEncoder.encode(filePassword));
+            }
+            LocalDateTime expirationDate = LocalDateTime.now().plusDays(expirationDays);
+            fileData.setExpirationDate(expirationDate);
+            fileData.setFileLink(presignedUrl);
+            fileData.setFileKey(key);
+            fileDataRepository.save(fileData);
+
+            return presignedUrl;
+
         } catch (IOException e) {
-            log.error("Failed to calculate file hash for file: {}", uploadedFile.getOriginalFilename(), e);
-            throw new FileHashComputationException("Failed to calculate file hash: " + e.getMessage(), e);
+            log.error("Failed to process file upload: {}", uploadedFile.getOriginalFilename(), e);
+            throw new RuntimeException("Failed to process file upload: " + e.getMessage(), e);
         }
-
-        // Check if received file hash matches the new calculated hash of the received
-        // file
-        // Prevent potential file corruption during the upload process
-        if (!fileHash.equals(fileData.getHash())) {
-            log.error("File hash mismatch: expected '{}', calculated '{}'", fileData.getHash(), fileHash);
-
-            throw new FileHashMismatchException("File hash mismatch");
-        }
-        String presignedUrl = null;
-        String key = null;
-        try {
-            // Generate a unique key for the file in B2 and upload it
-            key = backblazeB2Service.uploadFile(uploadedFile, fileData.getEmail());
-            // Generate a presigned URL for the uploaded file with the specified expiration
-            // time
-            presignedUrl = backblazeB2Service.generatePresignedUrl(key, Duration.ofDays(expirationDays)).toString();
-        } catch (Exception e) {
-            log.error("Failed to generate presigned URL for key: {}", key, e);
-            throw new FileLinkGenerationException("Failed to generate presigned URL: " + e.getMessage(), e);
-        }
-        if (presignedUrl == null || presignedUrl.isEmpty()) {
-            log.error("Presigned URL is empty for key: {}", key);
-            throw new FileLinkGenerationException("Presigned URL is empty");
-        }
-
-        // Save the file metadata on the database
-        String filePassword = fileData.getFilePassword();
-        if (filePassword != null && !filePassword.isEmpty()) {
-            fileData.setFilePassword(passwordEncoder.encode(filePassword));
-        }
-        LocalDateTime expirationDate = LocalDateTime.now().plusDays(expirationDays);
-        fileData.setExpirationDate(expirationDate);
-        fileData.setFileLink(presignedUrl);
-        fileData.setFileKey(key); // will be used to identify the file for download and delete operations
-        fileDataRepository.save(fileData);
-
-        return presignedUrl;
     }
 
     public String downloadFile(Long id, String filePassword) throws Exception {
