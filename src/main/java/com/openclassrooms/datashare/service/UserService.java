@@ -27,28 +27,19 @@ public class UserService {
     /**
      * Registers a new user to the database.
      * 
-     * @param user the user to be registered
+     * @param authDTO the user to be registered
      * @throws IllegalArgumentException if a user with the same login already exists
      */
     public void register(AuthDTO authDTO) {
         Assert.notNull(authDTO, "Auth data must not be null");
 
-        User user = new User();
-
-        user.setEmail(authDTO.getEmail());
-        user.setPassword(authDTO.getPassword());
-
-        register(user);
-    }
-
-    public void register(User user) {
-        Assert.notNull(user, "User must not be null");
-
-        Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
+        Optional<User> optionalUser = userRepository.findByEmail(authDTO.getEmail());
         if (optionalUser.isPresent()) {
-            throw new IllegalArgumentException("User with email " + user.getEmail() + " already exists");
+            throw new IllegalArgumentException("User with email " + authDTO.getEmail() + " already exists");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User user = new User();
+        user.setEmail(authDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(authDTO.getPassword()));
         userRepository.save(user);
     }
 
