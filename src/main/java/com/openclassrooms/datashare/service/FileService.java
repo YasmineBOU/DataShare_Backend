@@ -7,8 +7,9 @@ import com.openclassrooms.datashare.repository.FileRepository;
 import com.openclassrooms.datashare.utils.FileUtils;
 import com.openclassrooms.datashare.handler.exceptions.*;
 
-import java.io.FileNotFoundException;
+// import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -36,6 +37,8 @@ public class FileService {
     public String uploadFile(MultipartFile uploadedFile, FileData fileData, int expirationDays) {
 
         Assert.notNull(uploadedFile, "Uploaded file must not be null");
+        Assert.notNull(fileData, "File data must not be null");
+        Assert.isTrue(expirationDays > 0, "Expiration days must be a positive number");
 
         try {
             String fileHash = FileUtils.calculateFileHash(uploadedFile);
@@ -46,24 +49,25 @@ public class FileService {
             }
 
             String key = backblazeB2Service.uploadFile(uploadedFile, fileData.getEmail());
-            String presignedUrl = backblazeB2Service.generatePresignedUrl(key, Duration.ofDays(expirationDays)).toString();
+            URL presignedUrl = backblazeB2Service.generatePresignedUrl(key, Duration.ofDays(expirationDays));
 
-            if (presignedUrl == null || presignedUrl.isEmpty()) {
+            if (presignedUrl == null || presignedUrl.toString().isEmpty()) {
                 log.error("Presigned URL is empty for key: {}", key);
                 throw new FileLinkGenerationException("Presigned URL is empty");
             }
 
+            String fileLink = presignedUrl.toString();
             String filePassword = fileData.getFilePassword();
             if (filePassword != null && !filePassword.isEmpty()) {
                 fileData.setFilePassword(passwordEncoder.encode(filePassword));
             }
             LocalDateTime expirationDate = LocalDateTime.now().plusDays(expirationDays);
             fileData.setExpirationDate(expirationDate);
-            fileData.setFileLink(presignedUrl);
+            fileData.setFileLink(fileLink);
             fileData.setFileKey(key);
             fileDataRepository.save(fileData);
 
-            return presignedUrl;
+            return fileLink;
 
         } catch (IOException e) {
             log.error("Failed to process file upload: {}", uploadedFile.getOriginalFilename(), e);
@@ -71,7 +75,7 @@ public class FileService {
         }
     }
 
-    public String downloadFile(Long id, String filePassword) throws Exception {
+    public String downloadFile(Long id, String filePassword) {
         Assert.notNull(id, "File ID must not be null");
 
         Optional<FileData> fileData = fileDataRepository.findById(id);
@@ -122,8 +126,9 @@ public class FileService {
         return fileDataRepository.findFilesByEmail(email);
     }
 
-    public FileInfoDTO getFileInfo(Long fileId) throws Exception {
+    public FileInfoDTO getFileInfo(Long fileId) {
         Assert.notNull(fileId, "File ID must not be null");
+        Assert.isTrue(fileId > 0, "File ID must be a positive number");
         Optional<FileInfoDTO> fileInfo = fileDataRepository.findFileInfoById(fileId);
         if (fileInfo.isEmpty()) {
             log.warn("No file found for file ID: {}", fileId);
@@ -140,7 +145,7 @@ public class FileService {
         Optional<FileData> fileData = fileDataRepository.findById(id);
         if (fileData.isEmpty()) {
             log.warn("File with id {} not found for deletion", id);
-            throw new IllegalStateException("File with id " + id + " not found in database");
+            throw new FileNotFoundException("File with id " + id + " not found in database");
         }
         FileData file = fileData.get();
         try {
