@@ -16,18 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.openclassrooms.datashare.configuration.security.SecurityConstants;
+
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig {
-
-    private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/register",
-            "/api/login",
-            "/api/logout",
-            "/api/files/upload",
-            "/api/files/download",
-            "/api/files/info/*"
-    };
 
     @Autowired
     private CustomUserDetailService customUserDetailService;
@@ -63,10 +56,11 @@ public class SpringSecurityConfig {
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(authorize -> authorize
-                        // No auth needed on :
+                        // Actuator endpoints
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        // Others protected routes will be added here.
+                        // Public routes (exact match, no path variables)
+                        .requestMatchers(SecurityConstants.PUBLIC_ENDPOINTS).permitAll()
+                        // All other routes require authentication
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter,
                         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)

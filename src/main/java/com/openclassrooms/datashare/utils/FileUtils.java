@@ -5,8 +5,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.time.Instant;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 public class FileUtils {
 
@@ -44,25 +47,18 @@ public class FileUtils {
         }
     }
 
-    public static String calculateFileHashFromPath(Path filePath) throws IOException {
-        if (filePath == null || !Files.exists(filePath)) {
-            throw new IllegalArgumentException("File path must exist");
-        }
-
-        try (InputStream inputStream = Files.newInputStream(filePath)) {
-            // Process file in chunks to avoid loading entire large files into memory
-            Blake3Digest digest = new Blake3Digest();
-            byte[] buffer = new byte[8192]; // 8 KB chunks
-            int bytesRead;
-
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                digest.update(buffer, 0, bytesRead);
-            }
-
-            byte[] hashBytes = new byte[digest.getDigestSize()];
-            digest.doFinal(hashBytes, 0);
-
-            return bytesToHex(hashBytes);
+    public static String generateUniqueFileToken(String hash, String fileKey, int linkLength) {
+        try {
+            String base = hash.substring(0, 10) +
+                    fileKey.substring(0, 5) +
+                    Instant.now().toEpochMilli();
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(base.getBytes(StandardCharsets.UTF_8));
+            String token = Base64.getUrlEncoder().withoutPadding().encodeToString(hashBytes);
+            return token.substring(0, Math.min(linkLength, token.length()));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Failed to generate unique file token", e);
         }
     }
+
 }

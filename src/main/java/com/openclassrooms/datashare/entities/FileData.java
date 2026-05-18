@@ -61,6 +61,9 @@ public class FileData {
     @Column(name = "file_link", nullable = false, columnDefinition = "TEXT")
     private String fileLink;
 
+    @Column(name = "file_token", columnDefinition = "TEXT")
+    private String fileToken;
+
     @NotNull
     @Column(name = "file_size", nullable = false)
     private long fileSize;

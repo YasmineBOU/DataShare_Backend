@@ -1,5 +1,6 @@
 package com.openclassrooms.datashare.controller;
 
+import com.openclassrooms.datashare.configuration.security.SecurityConstants;
 import com.openclassrooms.datashare.dto.AuthDTO;
 import com.openclassrooms.datashare.dto.AuthMeDTO;
 import com.openclassrooms.datashare.entities.User;
@@ -28,9 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserController {
 
-    private static final String AUTH_COOKIE_NAME = "authToken";
-    private static final long AUTH_COOKIE_MAX_AGE_SECONDS = 3600L;
-
     private final UserService userService;
 
     @Value("${com.openclassrooms.datashare.cookie.secure:true}")
@@ -46,12 +44,12 @@ public class UserController {
     public ResponseEntity<?> login(@Valid @RequestBody AuthDTO authDTO, HttpServletResponse response) {
         String jwtToken = userService.login(authDTO.getEmail(), authDTO.getPassword());
 
-        ResponseCookie cookie = ResponseCookie.from(AUTH_COOKIE_NAME, jwtToken)
+        ResponseCookie cookie = ResponseCookie.from(SecurityConstants.AUTH_TOKEN_COOKIE_NAME, jwtToken)
                 .httpOnly(true)
                 .secure(cookieSecure)
-                .sameSite("Strict")
+                .sameSite("None")
                 .path("/")
-                .maxAge(AUTH_COOKIE_MAX_AGE_SECONDS)
+                .maxAge(SecurityConstants.AUTH_COOKIE_MAX_AGE_SECONDS)
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -71,10 +69,10 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from(AUTH_COOKIE_NAME, "")
+        ResponseCookie cookie = ResponseCookie.from(SecurityConstants.AUTH_TOKEN_COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(cookieSecure)
-                .sameSite("Strict")
+                .sameSite("None")
                 .path("/")
                 .maxAge(0)
                 .build();

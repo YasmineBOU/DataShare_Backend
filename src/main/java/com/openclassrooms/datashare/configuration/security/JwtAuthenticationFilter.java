@@ -27,13 +27,6 @@ import java.util.Set;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-    private static final String AUTH_TOKEN_COOKIE_NAME = "authToken";
-    private static final Set<String> PUBLIC_PATHS = Set.of(
-            "/api/login",
-            "/api/register",
-            "/api/logout",
-            "/api/files/upload",
-            "/api/files/download");
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -42,12 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@org.springframework.lang.NonNull HttpServletRequest request,
             @org.springframework.lang.NonNull HttpServletResponse response,
             @org.springframework.lang.NonNull FilterChain filterChain) throws ServletException, IOException {
-
-        String requestUri = request.getRequestURI();
-        if (PUBLIC_PATHS.contains(requestUri) || requestUri.startsWith("/api/files/info/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String jwtToken = null;
         String usernameTemp = null;
@@ -65,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
-                    if (AUTH_TOKEN_COOKIE_NAME.equals(cookie.getName())) {
+                    if (SecurityConstants.AUTH_TOKEN_COOKIE_NAME.equals(cookie.getName())) {
                         jwtToken = cookie.getValue();
                         log.debug("Token found in HttpOnly cookie");
                         break;

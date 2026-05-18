@@ -12,6 +12,7 @@ import lombok.Data;
 public class FileInfoDTO {
     private Long id;
     private String filename;
+    private String fileToken;
     private long fileSize;
     private LocalDateTime createdAt;
     private LocalDateTime expirationDate;

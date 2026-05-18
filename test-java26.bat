@@ -34,4 +34,5 @@ REM Configure JVM memory for large file uploads
 REM Reduced to 2G max to avoid Windows pagefile exhaustion on 800MB+ uploads
 set "MAVEN_OPTS=-Xmx2G -Xms1G"
 
-mvn clean install && mvn -Dtest=UserServiceTest test
+mvn clean compile && mvn -Dtest=FileServiceTest test
+@REM mvn -Dtest=FileServiceTest test

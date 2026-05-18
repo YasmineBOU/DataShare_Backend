@@ -15,6 +15,7 @@ public interface FileDtoMapper {
     @Mapping(target = "fileLink", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "fileKey", ignore = true)
+    @Mapping(target = "fileToken", ignore = true)
     @Mapping(target = "deleted", constant = "false")
     FileData toEntity(FileUploadDTO fileUploadDTO);
 }

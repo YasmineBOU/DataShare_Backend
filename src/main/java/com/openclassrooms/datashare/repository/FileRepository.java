@@ -14,31 +14,33 @@ import java.util.Optional;
 
 @Repository
 public interface FileRepository extends JpaRepository<FileData, Long> {
-    Optional<FileData> findByEmail(String email);
+        Optional<FileData> findByEmail(String email);
 
-    Optional<FileData> findByFileKey(String fileKey);
+        Optional<FileData> findByFileKey(String fileKey);
 
-    @Query("SELECT new com.openclassrooms.datashare.dto.FileInfoDTO(" +
-            "u.id, " +
-            "u.filename, " +
-            "u.fileSize, " +
-            "u.createdAt, " +
-            "u.expirationDate, " +
-            "CASE WHEN u.filePassword IS NOT NULL AND u.filePassword != '' THEN true ELSE false END) " +
-            "FROM FileData u WHERE u.email = :email")
-    List<FileInfoDTO> findFilesByEmail(String email);
+        @Query("SELECT new com.openclassrooms.datashare.dto.FileInfoDTO(" +
+                        "u.id, " +
+                        "u.filename, " +
+                        "u.fileToken, " +
+                        "u.fileSize, " +
+                        "u.createdAt, " +
+                        "u.expirationDate, " +
+                        "CASE WHEN u.filePassword IS NOT NULL AND u.filePassword != '' THEN true ELSE false END) " +
+                        "FROM FileData u WHERE u.email = :email")
+        List<FileInfoDTO> findFilesByEmail(String email);
 
-    @Query("SELECT f FROM FileData f WHERE f.expirationDate < :currentDate")
-    List<FileData> findExpiredFiles(@Param("currentDate") LocalDateTime currentDate);
+        @Query("SELECT f FROM FileData f WHERE f.expirationDate < :currentDate")
+        List<FileData> findExpiredFiles(@Param("currentDate") LocalDateTime currentDate);
 
-    @Query("SELECT new com.openclassrooms.datashare.dto.FileInfoDTO(" +
-            "u.id, " +
-            "u.filename, " +
-            "u.fileSize, " +
-            "u.createdAt, " +
-            "u.expirationDate, " +
-            "CASE WHEN u.filePassword IS NOT NULL AND u.filePassword != '' THEN true ELSE false END) " +
-            "FROM FileData u WHERE u.id = :fileId")
-    Optional<FileInfoDTO> findFileInfoById(@Param("fileId") Long fileId);
+        @Query("SELECT new com.openclassrooms.datashare.dto.FileInfoDTO(" +
+                        "u.id, " +
+                        "u.filename, " +
+                        "u.fileToken, " +
+                        "u.fileSize, " +
+                        "u.createdAt, " +
+                        "u.expirationDate, " +
+                        "CASE WHEN u.filePassword IS NOT NULL AND u.filePassword != '' THEN true ELSE false END) " +
+                        "FROM FileData u WHERE u.fileToken = :fileToken")
+        Optional<FileInfoDTO> findFileInfoByFileToken(@Param("fileToken") String fileToken);
 
 }

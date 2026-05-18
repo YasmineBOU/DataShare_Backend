@@ -7,14 +7,12 @@ import com.openclassrooms.datashare.repository.FileRepository;
 import com.openclassrooms.datashare.utils.FileUtils;
 import com.openclassrooms.datashare.handler.exceptions.*;
 
-// import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.apache.tomcat.jni.FileInfo;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,18 +54,19 @@ public class FileService {
                 throw new FileLinkGenerationException("Presigned URL is empty");
             }
 
-            String fileLink = presignedUrl.toString();
             String filePassword = fileData.getFilePassword();
             if (filePassword != null && !filePassword.isEmpty()) {
                 fileData.setFilePassword(passwordEncoder.encode(filePassword));
             }
+            String fileToken = FileUtils.generateUniqueFileToken(fileHash, key, 20);
             LocalDateTime expirationDate = LocalDateTime.now().plusDays(expirationDays);
             fileData.setExpirationDate(expirationDate);
-            fileData.setFileLink(fileLink);
+            fileData.setFileLink(presignedUrl.toString());
             fileData.setFileKey(key);
+            fileData.setFileToken(fileToken);
             fileDataRepository.save(fileData);
 
-            return fileLink;
+            return fileToken;
 
         } catch (IOException e) {
             log.error("Failed to process file upload: {}", uploadedFile.getOriginalFilename(), e);
@@ -126,13 +125,12 @@ public class FileService {
         return fileDataRepository.findFilesByEmail(email);
     }
 
-    public FileInfoDTO getFileInfo(Long fileId) {
-        Assert.notNull(fileId, "File ID must not be null");
-        Assert.isTrue(fileId > 0, "File ID must be a positive number");
-        Optional<FileInfoDTO> fileInfo = fileDataRepository.findFileInfoById(fileId);
+    public FileInfoDTO getFileInfoByFileToken(String fileToken) {
+        Assert.notNull(fileToken, "File token must not be null");
+        Optional<FileInfoDTO> fileInfo = fileDataRepository.findFileInfoByFileToken(fileToken);
         if (fileInfo.isEmpty()) {
-            log.warn("No file found for file ID: {}", fileId);
-            throw new FileNotFoundException("No file found for file ID: " + fileId);
+            log.warn("No file found for file token: {}", fileToken);
+            throw new FileNotFoundException("No file found for file token: " + fileToken);
         }
         return fileInfo.get();
     }

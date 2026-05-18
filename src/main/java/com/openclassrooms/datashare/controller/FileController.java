@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.openclassrooms.datashare.dto.FileDownloadDTO;
 import com.openclassrooms.datashare.dto.FileInfoDTO;
@@ -46,7 +45,7 @@ public class FileController {
                                 fileUploadDTO.getExpirationDays());
                 return ResponseEntity.ok(Map.of(
                                 "message", "File uploaded successfully !",
-                                "fileLink", fileLink));
+                                "fileToken", fileLink));
         }
 
         @PostMapping(value = "/download")
@@ -71,21 +70,13 @@ public class FileController {
                                 "files", fileService.listFiles(authenticatedUser, email)));
         }
 
-        @GetMapping(value = "/{id}")
+        @GetMapping(value = "/info")
         @PreAuthorize("isAuthenticated()")
         public ResponseEntity<?> getFileInfo(
                         @AuthenticationPrincipal User authenticatedUser,
-                        @PathVariable Long id) throws Exception {
+                        @RequestParam String fileToken) throws Exception {
 
-                FileInfoDTO fileInfo = fileService.getFileInfo(id);
-                return ResponseEntity.ok(fileInfo);
-        }
-
-        @GetMapping(value = "/info/{id}")
-        public ResponseEntity<?> getPublicFileInfo(
-                        @PathVariable Long id) throws Exception {
-
-                FileInfoDTO fileInfo = fileService.getFileInfo(id);
+                FileInfoDTO fileInfo = fileService.getFileInfoByFileToken(fileToken);
                 return ResponseEntity.ok(fileInfo);
         }
 
