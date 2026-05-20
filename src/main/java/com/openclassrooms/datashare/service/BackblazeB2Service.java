@@ -1,6 +1,7 @@
 package com.openclassrooms.datashare.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.openclassrooms.datashare.configuration.BackblazeB2Properties;
@@ -67,10 +68,9 @@ public class BackblazeB2Service {
 
     public String uploadFile(MultipartFile file, String email)
             throws IOException {
-        if (file.getSize() > MULTIPART_THRESHOLD_BYTES) {
-            return uploadMultipartFile(file, email);
-        }
 
+        Assert.notNull(file, "File must not be null");
+        Assert.isTrue(file.getSize() > 0, "File must not be empty");
         String location = "uploads/";
         if (email != null && !email.isEmpty()) {
             location += email + "/";
@@ -79,6 +79,11 @@ public class BackblazeB2Service {
         }
 
         String key = generateUniqueKey(file.getOriginalFilename(), location);
+
+        if (file.getSize() > MULTIPART_THRESHOLD_BYTES) {
+            return uploadMultipartFile(file, email, key);
+        }
+
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(properties.getBucketName())
@@ -93,81 +98,74 @@ public class BackblazeB2Service {
             return key;
 
         } catch (IOException e) {
-            throw new RuntimeException("Erreur lors de la lecture du fichier", e);
+            throw new RuntimeException("Failed to read file", e);
         }
     }
 
-    private String uploadMultipartFile(MultipartFile file, String email)
+    private String uploadMultipartFile(MultipartFile file, String email, String key)
             throws IOException {
-        String location = "uploads/";
-        if (email != null && !email.isEmpty()) {
-            location += email + "/";
-        } else {
-            location += "anonymous/";
-        }
 
-        String key = generateUniqueKey(file.getOriginalFilename(), location);
         CreateMultipartUploadResponse createMultipartUploadResponse = null;
         try {
             createMultipartUploadResponse = s3Client.createMultipartUpload(
-                CreateMultipartUploadRequest.builder()
-                    .bucket(properties.getBucketName())
-                    .key(key)
-                .contentType(file.getContentType())
-                .build());
+                    CreateMultipartUploadRequest.builder()
+                            .bucket(properties.getBucketName())
+                            .key(key)
+                            .contentType(file.getContentType())
+                            .build());
 
             String uploadId = createMultipartUploadResponse.uploadId();
             List<CompletedPart> completedParts = new ArrayList<>();
 
             try (InputStream inputStream = file.getInputStream()) {
-            byte[] buffer = new byte[MULTIPART_CHUNK_SIZE];
-            int bytesRead;
-            int partNumber = 1;
+                byte[] buffer = new byte[MULTIPART_CHUNK_SIZE];
+                int bytesRead;
+                int partNumber = 1;
 
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                byte[] partBytes = Arrays.copyOf(buffer, bytesRead);
-                UploadPartResponse uploadPartResponse = s3Client.uploadPart(
-                    UploadPartRequest.builder()
-                        .bucket(properties.getBucketName())
-                        .key(key)
-                        .uploadId(uploadId)
-                        .partNumber(partNumber)
-                        .contentLength((long) bytesRead)
-                        .build(),
-                    RequestBody.fromBytes(partBytes));
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    byte[] partBytes = Arrays.copyOf(buffer, bytesRead);
+                    UploadPartResponse uploadPartResponse = s3Client.uploadPart(
+                            UploadPartRequest.builder()
+                                    .bucket(properties.getBucketName())
+                                    .key(key)
+                                    .uploadId(uploadId)
+                                    .partNumber(partNumber)
+                                    .contentLength((long) bytesRead)
+                                    .build(),
+                            RequestBody.fromBytes(partBytes));
 
-                completedParts.add(CompletedPart.builder()
-                    .partNumber(partNumber)
-                    .eTag(uploadPartResponse.eTag())
-                    .build());
-                partNumber++;
-            }
+                    completedParts.add(CompletedPart.builder()
+                            .partNumber(partNumber)
+                            .eTag(uploadPartResponse.eTag())
+                            .build());
+                    partNumber++;
+                }
             }
 
             s3Client.completeMultipartUpload(
-                CompleteMultipartUploadRequest.builder()
-                    .bucket(properties.getBucketName())
-                    .key(key)
-                    .uploadId(uploadId)
-                    .multipartUpload(CompletedMultipartUpload.builder()
-                        .parts(completedParts)
-                        .build())
-                    .build());
+                    CompleteMultipartUploadRequest.builder()
+                            .bucket(properties.getBucketName())
+                            .key(key)
+                            .uploadId(uploadId)
+                            .multipartUpload(CompletedMultipartUpload.builder()
+                                    .parts(completedParts)
+                                    .build())
+                            .build());
             return key;
 
         } catch (Exception e) {
             if (createMultipartUploadResponse != null && createMultipartUploadResponse.uploadId() != null) {
-            try {
-                s3Client.abortMultipartUpload(AbortMultipartUploadRequest.builder()
-                    .bucket(properties.getBucketName())
-                    .key(key)
-                    .uploadId(createMultipartUploadResponse.uploadId())
-                    .build());
-            } catch (Exception abortException) {
-                log.warn("Failed to abort multipart upload for key: {}", key, abortException);
+                try {
+                    s3Client.abortMultipartUpload(AbortMultipartUploadRequest.builder()
+                            .bucket(properties.getBucketName())
+                            .key(key)
+                            .uploadId(createMultipartUploadResponse.uploadId())
+                            .build());
+                } catch (Exception abortException) {
+                    log.warn("Failed to abort multipart upload for key: {}", key, abortException);
+                }
             }
-            }
-            throw new RuntimeException("Erreur lors de l'upload multipart du fichier", e);
+            throw new RuntimeException("Failed to upload multipart file", e);
         }
     }
 
