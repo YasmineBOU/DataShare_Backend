@@ -1,11 +1,11 @@
 @echo off
-@REM  Adjust this path to your JDK 26 installation directory
-set JAVA_HOME=D:\Java\jdk-26
+@REM  Adjust this path to your JDK 25 installation directory
+set JAVA_HOME=D:\Java\jdk-25.0.3
 set PATH=%JAVA_HOME%\bin;%PATH%
 cd /d "%~dp0"
 
 if not exist "%~dp0.env" (
-	echo Missing .env file next to run-java26.bat
+	echo Missing .env file next to test-java25.bat
 	exit /b 1
 )
 
@@ -34,5 +34,7 @@ REM Configure JVM memory for large file uploads
 REM Reduced to 2G max to avoid Windows pagefile exhaustion on 800MB+ uploads
 set "MAVEN_OPTS=-Xmx2G -Xms1G"
 
-mvn clean compile && mvn -Dtest=FileServiceTest test
+@REM mvn clean compile && mvn install
 @REM mvn -Dtest=FileServiceTest test
+@REM mvn clean && mvn compile 
+mvn clean compile && mvn -Dtest=UserRepositoryTest test

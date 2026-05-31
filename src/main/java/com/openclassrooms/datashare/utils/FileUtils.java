@@ -47,7 +47,7 @@ public class FileUtils {
         }
     }
 
-    public static String generateUniqueFileToken(String hash, String fileKey, int linkLength) {
+    public static String generateUniqueFileToken(String hash, String fileKey, int tokenLength) {
         try {
             String base = hash.substring(0, 10) +
                     fileKey.substring(0, 5) +
@@ -55,9 +55,9 @@ public class FileUtils {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(base.getBytes(StandardCharsets.UTF_8));
             String token = Base64.getUrlEncoder().withoutPadding().encodeToString(hashBytes);
-            return token.substring(0, Math.min(linkLength, token.length()));
+            return token.substring(0, Math.min(tokenLength, token.length()));
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Failed to generate unique file token", e);
+            throw new IllegalStateException("Failed to generate unique file token", e);
         }
     }
 

@@ -1,11 +1,11 @@
 @echo off
-@REM  Adjust this path to your JDK 26 installation directory
-set JAVA_HOME=D:\Java\jdk-26
+@REM  Adjust this path to your JDK 25 installation directory
+set JAVA_HOME=D:\Java\jdk-25.0.3
 set PATH=%JAVA_HOME%\bin;%PATH%
 cd /d "%~dp0"
 
 if not exist "%~dp0.env" (
-	echo Missing .env file next to run-java26.bat
+	echo Missing .env file next to run-java25.bat
 	exit /b 1
 )
 
