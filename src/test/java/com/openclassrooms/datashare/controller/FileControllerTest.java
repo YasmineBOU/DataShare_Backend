@@ -153,6 +153,53 @@ public class FileControllerTest {
                     .flashAttr("fileUploadDTO", fileUploadDTO))
                     .andExpect(status().isBadRequest());
         }
+
+        @Test
+        @DisplayName("Given a file with a password that doesn't meet the password policy, when uploadFile is called, then return Bad Request")
+        public void test_uploadFile_with_invalid_password_returns_bad_request() throws Exception {
+            // GIVEN
+            FileUploadDTO fileUploadDTO = new FileUploadDTO();
+            fileUploadDTO.setFile(FILE);
+            fileUploadDTO.setFilename(FILENAME);
+            fileUploadDTO.setFileSize(FILE_SIZE);
+            fileUploadDTO.setFileType(FILE_TYPE);
+            fileUploadDTO.setHash(FILE_HASH);
+            fileUploadDTO.setExpirationDays(EXPIRATION_DAYS);
+            fileUploadDTO.setFilePassword("123"); // Invalid password (too short)
+
+            // WHEN & THEN
+            mockMvc.perform(MockMvcRequestBuilders.multipart(URL)
+                    .file(FILE)
+                    .flashAttr("fileUploadDTO", fileUploadDTO))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Given a file with a password that meets the password policy, when uploadFile is called, then return success")
+        public void test_uploadFile_with_valid_password_returns_success() throws Exception {
+            // GIVEN
+            FileUploadDTO fileUploadDTO = new FileUploadDTO();
+            fileUploadDTO.setFile(FILE);
+            fileUploadDTO.setFilename(FILENAME);
+            fileUploadDTO.setFileSize(FILE_SIZE);
+            fileUploadDTO.setFileType(FILE_TYPE);
+            fileUploadDTO.setHash(FILE_HASH);
+            fileUploadDTO.setExpirationDays(EXPIRATION_DAYS);
+            fileUploadDTO.setFilePassword("password"); // Valid password
+
+            String fileToken = "generated-token-123";
+            when(fileService.uploadFile(any(), any(), anyInt())).thenReturn(fileToken);
+
+            // WHEN & THEN
+            mockMvc.perform(MockMvcRequestBuilders.multipart(URL)
+                    .file(FILE)
+                    .flashAttr("fileUploadDTO", fileUploadDTO))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value("File uploaded successfully !"))
+                    .andExpect(jsonPath("$.fileToken").value(fileToken));
+
+            verify(fileService, times(1)).uploadFile(any(), any(), anyInt());
+        }
     }
 
     @Nested
