@@ -2,7 +2,6 @@ package com.openclassrooms.datashare.controller;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +26,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,7 +48,7 @@ import tools.jackson.databind.ObjectMapper;
 public class UserControllerTest {
 
     private static final String EMAIL = "john.doe@example.com";
-    private static final String PASSWORD = "password";
+    private static final String PASSWORD = "Password1";
 
     private static final Map<String, String> URLS_BY_METHOD = Map.of(
             "register", "/api/register",
@@ -138,6 +136,23 @@ public class UserControllerTest {
 
             // THEN
             verify(userService, times(1)).register(authDTO);
+        }
+
+        @Test
+        @DisplayName("Given a user with password that does not meet complexity requirements, when register is called, then a BadRequest status is returned.")
+        public void test_register_with_invalid_password_returns_bad_request() throws Exception {
+            // GIVEN
+            AuthDTO authDTO = new AuthDTO();
+            authDTO.setEmail(EMAIL);
+            authDTO.setPassword("weakpassword");
+
+            // WHEN
+            mockMvc.perform(MockMvcRequestBuilders.post(URL)
+                    .content(objectMapper.writeValueAsString(authDTO))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
         }
 
     }
