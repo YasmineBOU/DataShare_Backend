@@ -93,6 +93,16 @@ public class FileExceptionHandler {
                                 .body(getErrorDetails(fileDeletionException, request));
         }
 
+        @ExceptionHandler(value = { FileExtensionException.class })
+        protected ResponseEntity<Object> handleFileExtensionException(
+                        FileExtensionException fileExtensionException,
+                        WebRequest request) {
+                logError(fileExtensionException);
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(getErrorDetails(fileExtensionException, request));
+        }
+
         private void logError(Exception exception) {
                 org.slf4j.LoggerFactory.getLogger(getClass()).error(exception.getMessage(), exception);
         }

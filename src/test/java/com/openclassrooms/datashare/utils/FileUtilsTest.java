@@ -125,4 +125,40 @@ public class FileUtilsTest {
         }
 
     }
+
+    @Nested
+    @Tag("getFileExtension")
+    @DisplayName("Tests for getFileExtension method")
+    class GetFileExtensionTest {
+
+        @Test
+        @DisplayName("Given null filename, when getFileExtension is called, then an empty string is returned.")
+        public void test_getFileExtension_with_null_filename_should_return_empty_string() {
+            // WHEN
+            String extension = FileUtils.getFileExtension(null);
+
+            // THEN
+            assertThat(extension).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Given filename without extension, when getFileExtension is called, then an empty string is returned.")
+        public void test_getFileExtension_with_filename_without_extension_should_return_empty_string() {
+            // WHEN
+            String extension = FileUtils.getFileExtension("test");
+
+            // THEN
+            assertThat(extension).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Given filename with extension, when getFileExtension is called, then the extension is returned.")
+        public void test_getFileExtension_with_filename_with_extension_should_return_extension() {
+            // WHEN
+            String extension = FileUtils.getFileExtension("test.txt");
+
+            // THEN
+            assertThat(extension).isEqualTo(".txt");
+        }
+    }
 }

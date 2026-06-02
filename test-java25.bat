@@ -37,4 +37,5 @@ set "MAVEN_OPTS=-Xmx2G -Xms1G"
 @REM mvn clean compile && mvn install
 @REM mvn -Dtest=FileServiceTest test
 @REM mvn clean && mvn compile 
-mvn clean compile && mvn -Dtest=UserControllerTest test
+@REM mvn clean compile && mvn -Dtest=FileControllerTest test
+mvn clean compile test jacoco:report

@@ -32,12 +32,14 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.openclassrooms.datashare.repository.FileRepository;
+import com.openclassrooms.datashare.configuration.FileProperties;
 import com.openclassrooms.datashare.dto.FileInfoDTO;
 import com.openclassrooms.datashare.handler.exceptions.*;
 import com.openclassrooms.datashare.entities.FileData;
@@ -61,6 +63,8 @@ public class FileServiceTest {
         private FileRepository fileRepository;
         @Mock
         private PasswordEncoder passwordEncoder;
+        @Mock
+        private FileProperties fileProperties;
 
         @InjectMocks
         private FileService fileService;
@@ -77,6 +81,7 @@ public class FileServiceTest {
                 private static int EXPIRATION_DAYS = 1;
                 private static String FILE_HASH = "calculatedHash";
                 private static String FILE_KEY = "fileKey";
+                private static String FILE_EXT = "txt";
 
                 private MockedStatic<FileUtils> mockedFileUtils;
 
@@ -118,6 +123,11 @@ public class FileServiceTest {
                         // GIVEN
                         FILE_DATA.setHash(FILE_HASH);
 
+                        when(fileProperties.getForbiddenExtensions()).thenReturn(List.of("exe", "bat"));
+
+                        mockedFileUtils.when(
+                                        () -> FileUtils.getFileExtension(any()))
+                                        .thenReturn(FILE_EXT);
                         mockedFileUtils.when(
                                         () -> FileUtils.calculateFileHash(UPLOADED_FILE))
                                         .thenReturn("differentHash");
@@ -134,6 +144,12 @@ public class FileServiceTest {
                                 throws IOException {
                         // GIVEN
                         FILE_DATA.setHash(FILE_HASH);
+
+                        when(fileProperties.getForbiddenExtensions()).thenReturn(List.of("exe", "bat"));
+
+                        mockedFileUtils.when(
+                                        () -> FileUtils.getFileExtension(any()))
+                                        .thenReturn(FILE_EXT);
 
                         mockedFileUtils.when(
                                         () -> FileUtils.calculateFileHash(UPLOADED_FILE))
@@ -159,6 +175,12 @@ public class FileServiceTest {
                                         () -> FileUtils.calculateFileHash(UPLOADED_FILE))
                                         .thenReturn(FILE_HASH);
 
+                        when(fileProperties.getForbiddenExtensions()).thenReturn(List.of("exe", "bat"));
+
+                        mockedFileUtils.when(
+                                        () -> FileUtils.getFileExtension(any()))
+                                        .thenReturn(FILE_EXT);
+
                         when(backblazeB2Service.uploadFile(UPLOADED_FILE, FILE_DATA.getEmail()))
                                         .thenReturn(FILE_KEY);
                         when(backblazeB2Service.generatePresignedUrl(FILE_KEY, Duration.ofDays(EXPIRATION_DAYS)))
@@ -181,6 +203,12 @@ public class FileServiceTest {
                         mockedFileUtils.when(
                                         () -> FileUtils.calculateFileHash(UPLOADED_FILE))
                                         .thenReturn(FILE_HASH);
+
+                        when(fileProperties.getForbiddenExtensions()).thenReturn(List.of("exe", "bat"));
+
+                        mockedFileUtils.when(
+                                        () -> FileUtils.getFileExtension(any()))
+                                        .thenReturn(FILE_EXT);
 
                         when(backblazeB2Service.uploadFile(UPLOADED_FILE, FILE_DATA.getEmail()))
                                         .thenReturn(FILE_KEY);
@@ -205,6 +233,12 @@ public class FileServiceTest {
                         mockedFileUtils.when(
                                         () -> FileUtils.calculateFileHash(UPLOADED_FILE))
                                         .thenReturn(FILE_HASH);
+
+                        when(fileProperties.getForbiddenExtensions()).thenReturn(List.of("exe", "bat"));
+
+                        mockedFileUtils.when(
+                                        () -> FileUtils.getFileExtension(any()))
+                                        .thenReturn(FILE_EXT);
 
                         when(backblazeB2Service.uploadFile(UPLOADED_FILE, FILE_DATA.getEmail()))
                                         .thenReturn(FILE_KEY);
@@ -235,6 +269,12 @@ public class FileServiceTest {
                                         () -> FileUtils.calculateFileHash(UPLOADED_FILE))
                                         .thenReturn(FILE_HASH);
 
+                        when(fileProperties.getForbiddenExtensions()).thenReturn(List.of("exe", "bat"));
+
+                        mockedFileUtils.when(
+                                        () -> FileUtils.getFileExtension(any()))
+                                        .thenReturn(FILE_EXT);
+
                         when(backblazeB2Service.uploadFile(UPLOADED_FILE, FILE_DATA.getEmail()))
                                         .thenReturn(FILE_KEY);
                         when(backblazeB2Service.generatePresignedUrl(FILE_KEY, Duration.ofDays(EXPIRATION_DAYS)))
@@ -251,6 +291,30 @@ public class FileServiceTest {
                         verify(fileRepository, times(1)).save(FILE_DATA);
                         verify(passwordEncoder, never()).encode(any());
                         assertThat(fileToken).isEqualTo(FILE_TOKEN);
+                }
+
+                @Test
+                @DisplayName("Given file with forbidden extension, when uploadFile is called, then ForbiddenFileExtensionException is thrown.")
+                public void test_uploadFile_with_forbidden_extension_throws_ForbiddenFileExtensionException() {
+                        // GIVEN
+                        String filename = "malware.exe";
+                        MultipartFile uploadedFile = new MockMultipartFile(
+                                        "file",
+                                        filename,
+                                        "application/octet-stream",
+                                        new byte[1024]);
+
+                        when(fileProperties.getForbiddenExtensions()).thenReturn(List.of("exe", "bat"));
+
+                        mockedFileUtils.when(
+                                        () -> FileUtils.getFileExtension(filename))
+                                        .thenReturn("exe");
+
+                        // THEN
+                        Assertions.assertThrows(
+                                        FileExtensionException.class,
+                                        () -> fileService.uploadFile(uploadedFile, FILE_DATA,
+                                                        EXPIRATION_DAYS));
                 }
         }
 

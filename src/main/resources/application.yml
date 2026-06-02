@@ -70,6 +70,8 @@ com:
         expiration-ms: ${JWT_EXPIRATION_MS}
       cookie:
         secure: ${COOKIE_SECURE:true}
+      file:
+        forbidden-extensions: .exe,.bat,.sh,.js,.php,.py,.pl,.rb,.jar,.dll,.so,.bin,.cmd,.com,.cpl,.msc,.msi,.reg,.scr,.vb,.vbs,.ws,.wsh
 
 # Backblaze B2 Configuration
 b2:

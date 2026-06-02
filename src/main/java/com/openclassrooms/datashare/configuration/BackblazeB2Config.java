@@ -28,8 +28,6 @@ public class BackblazeB2Config {
 
     @Bean
     public S3Client s3Client() {
-        log.info("\n\n\n********B2 Configuration - Endpoint: {}, Key ID: {}, Region: {}\n\n\n", endpoint, keyId,
-                region);
 
         if (endpoint == null || endpoint.isBlank()) {
             throw new IllegalStateException("B2 endpoint must be provided in .env.");

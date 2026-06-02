@@ -1,5 +1,6 @@
 package com.openclassrooms.datashare.service;
 
+import com.openclassrooms.datashare.configuration.FileProperties;
 import com.openclassrooms.datashare.dto.FileInfoDTO;
 import com.openclassrooms.datashare.entities.FileData;
 import com.openclassrooms.datashare.entities.User;
@@ -31,6 +32,7 @@ public class FileService {
     private final BackblazeB2Service backblazeB2Service;
     private final FileRepository fileDataRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileProperties fileProperties;
 
     public String uploadFile(MultipartFile uploadedFile, FileData fileData, int expirationDays) {
 
@@ -39,6 +41,18 @@ public class FileService {
         Assert.isTrue(expirationDays > 0, "Expiration days must be a positive number");
 
         try {
+
+            if (fileProperties.getForbiddenExtensions() != null) {
+                String originalFilename = uploadedFile.getOriginalFilename();
+                if (originalFilename != null) {
+                    String fileExtension = FileUtils.getFileExtension(originalFilename);
+                    if (fileProperties.getForbiddenExtensions().contains(fileExtension.toLowerCase())) {
+                        log.warn("Attempt to upload file with forbidden extension: {}", fileExtension);
+                        throw new FileExtensionException(
+                                "Files with extension '" + fileExtension + "' are not allowed");
+                    }
+                }
+            }
             String fileHash = FileUtils.calculateFileHash(uploadedFile);
 
             if (!fileHash.equals(fileData.getHash())) {
