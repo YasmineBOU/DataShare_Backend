@@ -1,6 +1,6 @@
 package com.openclassrooms.datashare.scheduler;
 
-import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.openclassrooms.datashare.entities.FileData;
@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.context.event.ContextRefreshedEvent;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -23,8 +21,8 @@ public class FileExpirationCleaner {
     private final FileRepository fileRepository;
     private final BackblazeB2Service backblazeB2Service;
 
-    @EventListener(ContextRefreshedEvent.class)
-    public void onApplicationStarted() {
+    @Scheduled(cron = "${scheduler.file-expiration.cron}")
+    public void cleanExpiredFiles() {
         LocalDateTime currentDate = LocalDateTime.now();
         List<FileData> expiredFiles = fileRepository.findExpiredFiles(currentDate);
 

@@ -73,6 +73,11 @@ com:
       file:
         forbidden-extensions: .exe,.bat,.sh,.js,.php,.py,.pl,.rb,.jar,.dll,.so,.bin,.cmd,.com,.cpl,.msc,.msi,.reg,.scr,.vb,.vbs,.ws,.wsh
 
+scheduler:
+  file-expiration:
+    enabled: true
+    cron: "0 0 */1 * * ?" # Every hour at minute 0
+
 # Backblaze B2 Configuration
 b2:
   endpoint: ${B2_ENDPOINT}
