@@ -1,7 +1,5 @@
 package com.openclassrooms.datashare.configuration.security;
 
-import com.openclassrooms.datashare.configuration.security.SecurityConstants;
-
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
