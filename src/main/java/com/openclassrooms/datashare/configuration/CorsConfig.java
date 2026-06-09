@@ -1,16 +1,58 @@
 package com.openclassrooms.datashare.configuration;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-
+/**
+ * Configuration class for Cross-Origin Resource Sharing (CORS) settings.
+ * This class defines a {@link CorsConfigurationSource} bean to configure CORS
+ * policies
+ * for the application, allowing secure communication between the frontend and
+ * backend.
+ *
+ * <p>
+ * Key functionalities include:
+ * <ul>
+ * <li>Enabling CORS for specific origins (e.g., frontend URLs).</li>
+ * <li>Allowing credentials (cookies, authorization headers).</li>
+ * <li>Configuring allowed HTTP methods and headers.</li>
+ * <li>Setting a max age for preflight requests to optimize performance.</li>
+ * </ul>
+ *
+ * @see CorsConfiguration
+ * @see CorsConfigurationSource
+ */
 @Configuration
 public class CorsConfig {
 
+    /**
+     * Creates and configures a {@link CorsConfigurationSource} bean to define CORS
+     * policies.
+     *
+     * <p>
+     * The CORS configuration allows:
+     * <ul>
+     * <li>Credentials (cookies, authorization headers) to be included in
+     * requests.</li>
+     * <li>Requests from the following origins:
+     * <ul>
+     * <li>Frontend running on port 4200 (HTTP and HTTPS)</li>
+     * <li>Frontend running on port 3000 (HTTP and HTTPS)</li>
+     * </ul>
+     * </li>
+     * <li>HTTP methods: GET, POST, PUT, DELETE, OPTIONS, PATCH.</li>
+     * <li>All headers to be included in requests.</li>
+     * <li>Exposure of custom headers like "Authorization" and "Content-Type".</li>
+     * <li>Caching of preflight requests for 3600 seconds (1 hour).</li>
+     * </ul>
+     *
+     * @return A configured {@link CorsConfigurationSource} instance.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

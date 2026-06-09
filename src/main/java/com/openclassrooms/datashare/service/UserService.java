@@ -15,6 +15,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+/**
+ * Service responsible for managing user-related operations such as registration
+ * and authentication.
+ * This service interacts with {@link UserRepository} to persist user data and
+ * {@link PasswordEncoder}
+ * to securely hash passwords. It also generates JWT tokens for authenticated
+ * users via {@link JwtService}.
+ *
+ * <p>
+ * Key functionalities include:
+ * <ul>
+ * <li>Registering new users with email and password.</li>
+ * <li>Authenticating users and generating JWT tokens for secure access.</li>
+ * </ul>
+ *
+ * @see UserRepository
+ * @see PasswordEncoder
+ * @see JwtService
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -48,8 +67,8 @@ public class UserService {
      *
      * @param email    the user's email
      * @param password the user's password
-     * @return a JWT token if the credentials are valid, otherwise an
-     *         IllegalArgumentException is thrown
+     * @return a JWT token if the credentials are valid
+     * @throws IllegalArgumentException if the credentials are invalid
      */
     public String login(String email, String password) {
         Assert.notNull(email, "Email must not be null");

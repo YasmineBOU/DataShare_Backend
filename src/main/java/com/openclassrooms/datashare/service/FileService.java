@@ -4,36 +4,92 @@ import com.openclassrooms.datashare.configuration.FileProperties;
 import com.openclassrooms.datashare.dto.FileInfoDTO;
 import com.openclassrooms.datashare.entities.FileData;
 import com.openclassrooms.datashare.entities.User;
+import com.openclassrooms.datashare.handler.exceptions.*;
 import com.openclassrooms.datashare.repository.FileRepository;
 import com.openclassrooms.datashare.utils.FileUtils;
-import com.openclassrooms.datashare.handler.exceptions.*;
 
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.Assert;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
+/**
+ * Service responsible for managing file-related operations such as upload,
+ * download, listing, retrieval, and deletion.
+ * This service interacts with {@link FileRepository} to persist file metadata,
+ * {@link BackblazeB2Service} for cloud storage operations,
+ * and {@link PasswordEncoder} for securing file passwords. It also handles file
+ * validation, expiration, and access control.
+ *
+ * <p>
+ * Key functionalities include:
+ * <ul>
+ * <li>Uploading files to Backblaze B2 storage and saving their metadata in the
+ * database.</li>
+ * <li>Generating secure download links for files, with optional password
+ * protection.</li>
+ * <li>Listing files associated with a user's email.</li>
+ * <li>Retrieving file metadata using a unique token.</li>
+ * <li>Deleting files from both the cloud storage and the database (hard or soft
+ * delete).</li>
+ * </ul>
+ *
+ * @see FileRepository
+ * @see BackblazeB2Service
+ * @see PasswordEncoder
+ * @see FileProperties
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class FileService {
-
+    /**
+     * Service for interacting with Backblaze B2 cloud storage.
+     */
     private final BackblazeB2Service backblazeB2Service;
+
+    /**
+     * Repository for managing file data persistence.
+     */
     private final FileRepository fileDataRepository;
+
+    /**
+     * Encoder for hashing and verifying file passwords.
+     */
     private final PasswordEncoder passwordEncoder;
+
+    /**
+     * Configuration properties for file handling (e.g., forbidden extensions).
+     */
     private final FileProperties fileProperties;
 
+    /**
+     * Uploads a file to Backblaze B2 storage and saves its metadata in the
+     * database.
+     *
+     * @param uploadedFile   The file to upload (as a {@link MultipartFile}).
+     * @param fileData       The metadata associated with the file (e.g., email,
+     *                       file password, hash).
+     * @param expirationDays The number of days until the file link expires.
+     * @return A unique token for accessing the uploaded file.
+     * @throws FileExtensionException      If the file has a forbidden extension.
+     * @throws FileHashMismatchException   If the provided file hash does not match
+     *                                     the calculated hash.
+     * @throws FileLinkGenerationException If the presigned URL for the file cannot
+     *                                     be generated.
+     * @throws RuntimeException            If an error occurs during file
+     *                                     processing.
+     */
     public String uploadFile(MultipartFile uploadedFile, FileData fileData, int expirationDays) {
 
         Assert.notNull(uploadedFile, "Uploaded file must not be null");
@@ -88,6 +144,20 @@ public class FileService {
         }
     }
 
+    /**
+     * Generates a download link for a file after validating access permissions.
+     *
+     * @param id           The unique ID of the file to download.
+     * @param filePassword The password provided by the user to access the file (if
+     *                     applicable).
+     * @return A download link for the file.
+     * @throws FileNotFoundException    If the file with the given ID does not
+     *                                  exist.
+     * @throws FileExpiredException     If the file has expired.
+     * @throws InvalidPasswordException If the provided password is incorrect or
+     *                                  missing when required.
+     * @throws FileLinkNullException    If the file link is null or empty.
+     */
     public String downloadFile(Long id, String filePassword) {
         Assert.notNull(id, "File ID must not be null");
 
@@ -103,14 +173,14 @@ public class FileService {
         }
 
         String storedFilePassword = file.getFilePassword();
-        // Password provided but file does not have a passwordstoredFilePassword));
+        // Case: File does not have a password but a password was provided
         if (storedFilePassword == null || storedFilePassword.isEmpty()) {
             if (filePassword != null && !filePassword.isEmpty()) {
                 log.warn("File with ID {} does not have a password but a password was provided", id);
                 throw new InvalidPasswordException("File does not have a password");
             }
         }
-        // File has a password
+        // Case: File has a password
         else {
             // No password provided by the user
             if (filePassword == null || filePassword.isEmpty()) {
@@ -133,12 +203,29 @@ public class FileService {
         }
     }
 
+    /**
+     * Retrieves a list of files associated with a given email.
+     *
+     * @param authenticatedUser The user making the request (used for
+     *                          authorization).
+     * @param email             The email of the user whose files are to be listed.
+     * @return An iterable of {@link FileInfoDTO} containing file metadata.
+     * @throws IllegalArgumentException If the authenticated user or email is null.
+     */
     public Iterable<FileInfoDTO> listFiles(User authenticatedUser, String email) {
         Assert.notNull(authenticatedUser, "Authenticated user must not be null");
         Assert.notNull(email, "Email must not be null");
         return fileDataRepository.findFilesByEmail(email);
     }
 
+    /**
+     * Retrieves file metadata by its unique token.
+     *
+     * @param fileToken The unique token identifying the file.
+     * @return A {@link FileInfoDTO} containing the file metadata.
+     * @throws FileNotFoundException    If no file is found for the given token.
+     * @throws IllegalArgumentException If the file token is null.
+     */
     public FileInfoDTO getFileInfoByFileToken(String fileToken) {
         Assert.notNull(fileToken, "File token must not be null");
         Optional<FileInfoDTO> fileInfo = fileDataRepository.findFileInfoByFileToken(fileToken);
@@ -149,6 +236,19 @@ public class FileService {
         return fileInfo.get();
     }
 
+    /**
+     * Deletes a file from Backblaze B2 storage and removes its metadata from the
+     * database.
+     *
+     * @param authenticatedUser The user making the request (used for
+     *                          authorization).
+     * @param id                The unique ID of the file to delete.
+     * @throws FileNotFoundException    If the file with the given ID does not
+     *                                  exist.
+     * @throws FileDeletionException    If an error occurs during file deletion.
+     * @throws IllegalArgumentException If the authenticated user or file ID is
+     *                                  null, or if the ID is not positive.
+     */
     public void deleteFile(User authenticatedUser, Long id) {
         Assert.notNull(authenticatedUser, "Authenticated user must not be null");
         Assert.notNull(id, "File ID must not be null");
