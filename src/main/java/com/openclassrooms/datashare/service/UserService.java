@@ -5,8 +5,6 @@ import com.openclassrooms.datashare.entities.User;
 import com.openclassrooms.datashare.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.authentication.BadCredentialsException;
