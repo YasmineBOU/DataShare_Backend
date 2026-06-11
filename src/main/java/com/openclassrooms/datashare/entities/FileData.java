@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -46,10 +48,13 @@ public class FileData {
     private Long id;
 
     /**
-     * Email of the user who uploaded the file (optional association).
+     * User who uploaded the file (optional association).
+     * This allows for tracking files uploaded by registered users while still
+     * supporting anonymous uploads.
      */
-    @Column(name = "email")
-    private String email;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = true) // nullable = true for anonymous uploads
+    private User user;
 
     /**
      * Timestamp indicating when the file was created.
@@ -142,5 +147,14 @@ public class FileData {
      */
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
+
+    /**
+     * Retrieves the email of the user who uploaded the file.
+     *
+     * @return The email of the user, or null if the file was uploaded anonymously.
+     */
+    public String getEmail() {
+        return user != null ? user.getEmail() : null;
+    }
 
 }

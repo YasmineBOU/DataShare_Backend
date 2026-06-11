@@ -35,15 +35,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FileRepository extends JpaRepository<FileData, Long> {
         /**
-         * Finds a file by the email of the user who uploaded it.
-         *
-         * @param email The email of the user.
-         * @return An {@link Optional} containing the {@link FileData} entity if found,
-         *         or empty otherwise.
-         */
-        Optional<FileData> findByEmail(String email);
-
-        /**
          * Finds a file by its unique file key.
          *
          * @param fileKey The unique file key.
@@ -62,14 +53,14 @@ public interface FileRepository extends JpaRepository<FileData, Long> {
          * @return A list of {@link FileInfoDTO} objects representing the files.
          */
         @Query("SELECT new com.openclassrooms.datashare.dto.FileInfoDTO(" +
-                        "u.id, " +
-                        "u.filename, " +
-                        "u.fileToken, " +
-                        "u.fileSize, " +
-                        "u.createdAt, " +
-                        "u.expirationDate, " +
-                        "CASE WHEN u.filePassword IS NOT NULL AND u.filePassword != '' THEN true ELSE false END) " +
-                        "FROM FileData u WHERE u.email = :email")
+                        "f.id, " +
+                        "f.filename, " +
+                        "f.fileToken, " +
+                        "f.fileSize, " +
+                        "f.createdAt, " +
+                        "f.expirationDate, " +
+                        "CASE WHEN f.filePassword IS NOT NULL AND f.filePassword != '' THEN true ELSE false END) " +
+                        "FROM FileData f WHERE f.user.email = :email")
         List<FileInfoDTO> findFilesByEmail(String email);
 
         /**
@@ -93,14 +84,14 @@ public interface FileRepository extends JpaRepository<FileData, Long> {
          *         empty otherwise.
          */
         @Query("SELECT new com.openclassrooms.datashare.dto.FileInfoDTO(" +
-                        "u.id, " +
-                        "u.filename, " +
-                        "u.fileToken, " +
-                        "u.fileSize, " +
-                        "u.createdAt, " +
-                        "u.expirationDate, " +
-                        "CASE WHEN u.filePassword IS NOT NULL AND u.filePassword != '' THEN true ELSE false END) " +
-                        "FROM FileData u WHERE u.fileToken = :fileToken")
+                        "f.id, " +
+                        "f.filename, " +
+                        "f.fileToken, " +
+                        "f.fileSize, " +
+                        "f.createdAt, " +
+                        "f.expirationDate, " +
+                        "CASE WHEN f.filePassword IS NOT NULL AND f.filePassword != '' THEN true ELSE false END) " +
+                        "FROM FileData f WHERE f.fileToken = :fileToken")
         Optional<FileInfoDTO> findFileInfoByFileToken(@Param("fileToken") String fileToken);
 
 }

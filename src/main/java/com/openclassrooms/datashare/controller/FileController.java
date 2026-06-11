@@ -5,6 +5,7 @@ import com.openclassrooms.datashare.dto.FileInfoDTO;
 import com.openclassrooms.datashare.dto.FileUploadDTO;
 import com.openclassrooms.datashare.entities.User;
 import com.openclassrooms.datashare.mapper.FileDtoMapper;
+import com.openclassrooms.datashare.repository.UserRepository;
 import com.openclassrooms.datashare.service.FileService;
 
 import jakarta.validation.Valid;
@@ -37,6 +38,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 public class FileController {
+
+        /**
+         * Repository for managing user data.
+         */
+        private final UserRepository userRepository;
+
         /**
          * Service for handling business logic related to files.
          */
@@ -57,7 +64,7 @@ public class FileController {
         public ResponseEntity<?> uploadFile(@Valid @ModelAttribute FileUploadDTO fileUploadDTO) {
                 String fileLink = fileService.uploadFile(
                                 fileUploadDTO.getFile(),
-                                fileDtoMapper.toEntity(fileUploadDTO),
+                                fileDtoMapper.toEntity(fileUploadDTO, userRepository),
                                 fileUploadDTO.getExpirationDays());
                 return ResponseEntity.ok(Map.of(
                                 "message", "File uploaded successfully !",

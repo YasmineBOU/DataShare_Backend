@@ -3,6 +3,7 @@ package com.openclassrooms.datashare.controller;
 import com.openclassrooms.datashare.configuration.security.SecurityConstants;
 import com.openclassrooms.datashare.dto.AuthDTO;
 import com.openclassrooms.datashare.dto.AuthMeDTO;
+import com.openclassrooms.datashare.dto.RegisterDTO;
 import com.openclassrooms.datashare.entities.User;
 import com.openclassrooms.datashare.service.UserService;
 
@@ -70,15 +71,15 @@ public class UserController {
     /**
      * Registers a new user.
      *
-     * @param authDTO The user registration data (email and password).
+     * @param registerDTO The user registration data (email and password).
      * @return A {@link ResponseEntity} with HTTP status 201 (Created) if the
      *         registration is successful.
      * @throws IllegalArgumentException If the email is already registered or the
      *                                  password is invalid.
      */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody AuthDTO authDTO) {
-        userService.register(authDTO);
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO registerDTO) {
+        userService.register(registerDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

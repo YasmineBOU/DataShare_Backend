@@ -5,7 +5,7 @@ import com.openclassrooms.datashare.dto.FileInfoDTO;
 import com.openclassrooms.datashare.entities.FileData;
 import com.openclassrooms.datashare.entities.User;
 import com.openclassrooms.datashare.handler.exceptions.*;
-import com.openclassrooms.datashare.repository.FileRepository;
+import com.openclassrooms.datashare.repository.*;
 import com.openclassrooms.datashare.utils.FileUtils;
 
 import jakarta.transaction.Transactional;
@@ -64,6 +64,11 @@ public class FileService {
     private final FileRepository fileDataRepository;
 
     /**
+     * Repository for managing user data.
+     */
+    private final UserRepository userRepository;
+
+    /**
      * Encoder for hashing and verifying file passwords.
      */
     private final PasswordEncoder passwordEncoder;
@@ -116,7 +121,8 @@ public class FileService {
                 throw new FileHashMismatchException("File hash mismatch");
             }
 
-            String key = backblazeB2Service.uploadFile(uploadedFile, fileData.getEmail());
+            String email = fileData.getEmail();
+            String key = backblazeB2Service.uploadFile(uploadedFile, email);
             URL presignedUrl = backblazeB2Service.generatePresignedUrl(key, Duration.ofDays(expirationDays));
 
             if (presignedUrl == null || presignedUrl.toString().isEmpty()) {
@@ -130,10 +136,12 @@ public class FileService {
             }
             String fileToken = FileUtils.generateUniqueFileToken(fileHash, key, 20);
             LocalDateTime expirationDate = LocalDateTime.now().plusDays(expirationDays);
+            Optional<User> user = userRepository.findByEmail(email);
             fileData.setExpirationDate(expirationDate);
             fileData.setFileLink(presignedUrl.toString());
             fileData.setFileKey(key);
             fileData.setFileToken(fileToken);
+            fileData.setUser(user.orElse(null));
             fileDataRepository.save(fileData);
 
             return fileToken;

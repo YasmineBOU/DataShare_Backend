@@ -2,9 +2,13 @@ package com.openclassrooms.datashare.mapper;
 
 import com.openclassrooms.datashare.dto.FileUploadDTO;
 import com.openclassrooms.datashare.entities.FileData;
+import com.openclassrooms.datashare.entities.User;
+import com.openclassrooms.datashare.repository.UserRepository;
 
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
 /**
@@ -41,6 +45,7 @@ public interface FileDtoMapper {
      * <li>Update timestamp</li>
      * <li>File key</li>
      * <li>File token</li>
+     * <li>user</li>
      * </ul>
      * It also sets the following default values:
      * <ul>
@@ -58,5 +63,14 @@ public interface FileDtoMapper {
     @Mapping(target = "fileKey", ignore = true)
     @Mapping(target = "fileToken", ignore = true)
     @Mapping(target = "deleted", constant = "false")
-    FileData toEntity(FileUploadDTO fileUploadDTO);
+    @Mapping(target = "user", source = "email", qualifiedByName = "mapEmailToUser")
+    FileData toEntity(FileUploadDTO fileUploadDTO, @Context UserRepository userRepository);
+
+    @Named("mapEmailToUser")
+    default User mapEmailToUser(String email, @Context UserRepository userRepository) {
+        if (email == null || email.isBlank()) {
+            return null; // Fichier anonyme
+        }
+        return userRepository.findByEmail(email).orElse(null);
+    }
 }
