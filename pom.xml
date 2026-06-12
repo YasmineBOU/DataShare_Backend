@@ -33,6 +33,8 @@
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<lombok.version>1.18.46</lombok.version>
 		<testcontainers.version>1.21.3</testcontainers.version>
+
+		<plantuml-generator.version>2.1.0</plantuml-generator.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -260,33 +262,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
-			
-			<!-- <plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version>
-				<configuration>
-					<excludes>
-						<exclude>**/*MockitoMock*</exclude>
-						<exclude>**/*$MockitoMock*</exclude>
-					</excludes>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report</id>
-						<phase>test</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin> -->
+			</plugin>			
 
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -325,6 +301,212 @@
 							</rules>
 						</configuration>
 					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.5.0</version>
+				<configuration>
+					<doclint>none</doclint> 
+					<header>src/main/resources/header.txt</header>
+					<show>private</show>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>de.elnarion.maven</groupId>
+				<artifactId>plantuml-generator-maven-plugin</artifactId>
+				<version>2.1.0</version>
+				<executions>
+
+					<execution>
+						<id>uml-all</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>all-classes.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare</scanPackage>
+							</scanPackages>
+							<addValidationAnnotations>true</addValidationAnnotations>
+							<useShortClassNames>true</useShortClassNames>
+							<blacklistRegexp>.*MapperImpl</blacklistRegexp>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-configurations</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>configurations.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.configuration</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-logging</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>logging.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.configuration.logging</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-security</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>security.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.configuration.security</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-controllers</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>controllers.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.controller</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-dto</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>dto.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.dto</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-entities</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>entities.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.entities</scanPackage>
+							</scanPackages>
+							<addJPAAnnotations>true</addJPAAnnotations>
+							<addValidationAnnotations>true</addValidationAnnotations>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-handlers</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>handlers.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.handler</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-mapper</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>mapper.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.mapper</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-repositories</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>repositories.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.repository</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-scheduler</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>scheduler.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.scheduler</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-services</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>services.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.service</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>uml-utils</id>
+						<goals><goal>generate</goal></goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<outputDirectory>${project.basedir}/docs/uml</outputDirectory>
+							<outputFilename>utils.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.openclassrooms.datashare.utils</scanPackage>
+							</scanPackages>
+							<useShortClassNames>true</useShortClassNames>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 
