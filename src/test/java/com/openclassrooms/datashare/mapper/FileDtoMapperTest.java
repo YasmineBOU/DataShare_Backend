@@ -2,14 +2,24 @@ package com.openclassrooms.datashare.mapper;
 
 import com.openclassrooms.datashare.dto.FileUploadDTO;
 import com.openclassrooms.datashare.entities.FileData;
+import com.openclassrooms.datashare.entities.User;
+import com.openclassrooms.datashare.repository.UserRepository;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mapstruct.factory.Mappers;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class FileDtoMapperTest {
@@ -19,6 +29,9 @@ public class FileDtoMapperTest {
     private static final int FILE_SIZE = 1024;
     private static final String FILE_TYPE = "application/pdf";
     private static final String HASH = "abc123";
+
+    @Mock
+    private UserRepository userRepository;
 
     static Stream<Arguments> provideEmailAndPasswords() {
         return Stream.of(
@@ -30,6 +43,11 @@ public class FileDtoMapperTest {
                 Arguments.of(null, "password1"),
                 // email = any, password = any
                 Arguments.of("user@example.com", "password2"));
+    }
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this); // ✅ Initialise les mocks
     }
 
     @ParameterizedTest
@@ -45,8 +63,16 @@ public class FileDtoMapperTest {
         dto.setFileType(FILE_TYPE);
         dto.setHash(HASH);
 
+        if (email != null) {
+            User mockUser = new User();
+            mockUser.setEmail(email);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+        } else {
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        }
+
         // WHEN
-        FileData fileData = mapper.toEntity(dto);
+        FileData fileData = mapper.toEntity(dto, userRepository);
 
         // THEN
         assertNotNull(fileData);

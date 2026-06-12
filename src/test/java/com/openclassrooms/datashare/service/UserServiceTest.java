@@ -1,6 +1,7 @@
 package com.openclassrooms.datashare.service;
 
 import com.openclassrooms.datashare.dto.AuthDTO;
+import com.openclassrooms.datashare.dto.RegisterDTO;
 import com.openclassrooms.datashare.entities.User;
 import com.openclassrooms.datashare.repository.UserRepository;
 import com.openclassrooms.datashare.service.JwtService;
@@ -70,14 +71,14 @@ public class UserServiceTest {
             existingUser.setPassword(PASSWORD);
             when(userRepository.findByEmail(any())).thenReturn(Optional.of(existingUser));
 
-            AuthDTO authDTO = new AuthDTO();
-            authDTO.setEmail(EMAIL);
-            authDTO.setPassword(PASSWORD);
+            RegisterDTO registerDTO = new RegisterDTO();
+            registerDTO.setEmail(EMAIL);
+            registerDTO.setPassword(PASSWORD);
 
             // THEN
             Assertions.assertThrows(
                     IllegalArgumentException.class,
-                    () -> userService.register(authDTO));
+                    () -> userService.register(registerDTO));
 
             verify(userRepository, never()).save(any());
         }
@@ -86,14 +87,14 @@ public class UserServiceTest {
         @DisplayName("Given a valid user, when register is called, then the user is saved.")
         public void test_create_user() {
             // GIVEN
-            AuthDTO authDTO = new AuthDTO();
-            authDTO.setEmail(EMAIL);
-            authDTO.setPassword(PASSWORD);
+            RegisterDTO registerDTO = new RegisterDTO();
+            registerDTO.setEmail(EMAIL);
+            registerDTO.setPassword(PASSWORD);
             when(passwordEncoder.encode(PASSWORD)).thenReturn("ENCODED_PASSWORD");
             when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
 
             // WHEN
-            userService.register(authDTO);
+            userService.register(registerDTO);
 
             // THEN
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);

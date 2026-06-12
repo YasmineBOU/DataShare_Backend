@@ -37,6 +37,7 @@ import com.openclassrooms.datashare.configuration.security.JwtAuthenticationFilt
 
 import com.openclassrooms.datashare.configuration.security.SecurityConstants;
 import com.openclassrooms.datashare.dto.AuthDTO;
+import com.openclassrooms.datashare.dto.RegisterDTO;
 import com.openclassrooms.datashare.entities.User;
 import com.openclassrooms.datashare.handler.RestExceptionHandler;
 import com.openclassrooms.datashare.service.UserService;
@@ -88,11 +89,11 @@ public class UserControllerTest {
         @DisplayName("Given a null user, when register is called, then a BadRequest status is returned.")
         public void test_register_with_null_user_returns_bad_request() throws Exception {
             // GIVEN
-            AuthDTO authDTO = new AuthDTO();
+            RegisterDTO registerDTO = new RegisterDTO();
 
             // WHEN
             mockMvc.perform(MockMvcRequestBuilders.post(URL)
-                    .content(objectMapper.writeValueAsString(authDTO))
+                    .content(objectMapper.writeValueAsString(registerDTO))
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON))
                     .andDo(print())
@@ -103,15 +104,15 @@ public class UserControllerTest {
         @DisplayName("Given an existing user, when register is called, then a conflict status is returned.")
         public void test_register_with_existing_user_returns_conflict() throws Exception {
             // GIVEN
-            AuthDTO authDTO = new AuthDTO();
-            authDTO.setEmail(EMAIL);
-            authDTO.setPassword(PASSWORD);
+            RegisterDTO registerDTO = new RegisterDTO();
+            registerDTO.setEmail(EMAIL);
+            registerDTO.setPassword(PASSWORD);
 
-            doThrow(new IllegalArgumentException("User already exists")).when(userService).register(authDTO);
+            doThrow(new IllegalArgumentException("User already exists")).when(userService).register(registerDTO);
 
             // WHEN
             mockMvc.perform(MockMvcRequestBuilders.post(URL)
-                    .content(objectMapper.writeValueAsString(authDTO))
+                    .content(objectMapper.writeValueAsString(registerDTO))
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON))
                     .andDo(print())
@@ -122,33 +123,33 @@ public class UserControllerTest {
         @DisplayName("Given a valid user, when register is called, then user is created")
         public void test_register_with_valid_user_should_create_user() throws Exception {
             // GIVEN
-            AuthDTO authDTO = new AuthDTO();
-            authDTO.setEmail(EMAIL);
-            authDTO.setPassword(PASSWORD);
+            RegisterDTO registerDTO = new RegisterDTO();
+            registerDTO.setEmail(EMAIL);
+            registerDTO.setPassword(PASSWORD);
 
             // WHEN
             mockMvc.perform(MockMvcRequestBuilders.post(URL)
-                    .content(objectMapper.writeValueAsString(authDTO))
+                    .content(objectMapper.writeValueAsString(registerDTO))
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON))
                     .andDo(print())
                     .andExpect(MockMvcResultMatchers.status().isCreated());
 
             // THEN
-            verify(userService, times(1)).register(authDTO);
+            verify(userService, times(1)).register(registerDTO);
         }
 
         @Test
         @DisplayName("Given a user with password that does not meet complexity requirements, when register is called, then a BadRequest status is returned.")
         public void test_register_with_invalid_password_returns_bad_request() throws Exception {
             // GIVEN
-            AuthDTO authDTO = new AuthDTO();
-            authDTO.setEmail(EMAIL);
-            authDTO.setPassword("weakpassword");
+            RegisterDTO registerDTO = new RegisterDTO();
+            registerDTO.setEmail(EMAIL);
+            registerDTO.setPassword("weakpassword");
 
             // WHEN
             mockMvc.perform(MockMvcRequestBuilders.post(URL)
-                    .content(objectMapper.writeValueAsString(authDTO))
+                    .content(objectMapper.writeValueAsString(registerDTO))
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON))
                     .andDo(print())

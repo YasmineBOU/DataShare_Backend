@@ -7,6 +7,7 @@ import com.openclassrooms.datashare.entities.User;
 import com.openclassrooms.datashare.handler.FileExceptionHandler;
 import com.openclassrooms.datashare.handler.exceptions.*;
 import com.openclassrooms.datashare.mapper.FileDtoMapper;
+import com.openclassrooms.datashare.repository.UserRepository;
 import com.openclassrooms.datashare.service.FileService;
 
 import java.util.List;
@@ -65,6 +66,9 @@ public class FileControllerTest {
 
     @MockitoBean
     private FileService fileService;
+
+    @MockitoBean
+    private UserRepository userRepository;
 
     @MockitoBean
     private FileDtoMapper fileDtoMapper;

@@ -38,12 +38,13 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.openclassrooms.datashare.repository.FileRepository;
 import com.openclassrooms.datashare.configuration.FileProperties;
 import com.openclassrooms.datashare.dto.FileInfoDTO;
-import com.openclassrooms.datashare.handler.exceptions.*;
 import com.openclassrooms.datashare.entities.FileData;
 import com.openclassrooms.datashare.entities.User;
+import com.openclassrooms.datashare.handler.exceptions.*;
+import com.openclassrooms.datashare.repository.FileRepository;
+import com.openclassrooms.datashare.repository.UserRepository;
 import com.openclassrooms.datashare.utils.FileUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,6 +62,8 @@ public class FileServiceTest {
         private BackblazeB2Service backblazeB2Service;
         @Mock
         private FileRepository fileRepository;
+        @Mock
+        private UserRepository userRepository;
         @Mock
         private PasswordEncoder passwordEncoder;
         @Mock
@@ -375,9 +378,10 @@ public class FileServiceTest {
                                 // GIVEN
                                 FileData existingFile = new FileData();
                                 existingFile.setId(VALID_FILE_ID);
-                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1)); // Set expiration date
-                                                                                                 // in the future
+                                // Set expiration date in the future
+                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1));
                                 existingFile.setFilePassword(null); // No password set
+
                                 when(fileRepository.findById(VALID_FILE_ID)).thenReturn(Optional.of(existingFile));
 
                                 // THEN
@@ -393,9 +397,10 @@ public class FileServiceTest {
                                 // GIVEN
                                 FileData existingFile = new FileData();
                                 existingFile.setId(VALID_FILE_ID);
-                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1)); // Set expiration date
-                                                                                                 // in the future
+                                // Set expiration date in the future
+                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1));
                                 existingFile.setFilePassword(PASSWORD);
+
                                 when(fileRepository.findById(VALID_FILE_ID)).thenReturn(Optional.of(existingFile));
 
                                 // THEN
@@ -437,9 +442,8 @@ public class FileServiceTest {
                                 // GIVEN
                                 FileData existingFile = new FileData();
                                 existingFile.setId(VALID_FILE_ID);
-                                existingFile.setEmail(EMAIL);
-                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1)); // Set expiration date
-                                                                                                 // in the future
+                                // Set expiration date in the future
+                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1));
                                 existingFile.setFilePassword(PASSWORD);
                                 existingFile.setFileLink(FILE_TOKEN);
 
@@ -463,9 +467,7 @@ public class FileServiceTest {
                                 // GIVEN
                                 FileData existingFile = new FileData();
                                 existingFile.setId(VALID_FILE_ID);
-                                existingFile.setEmail(EMAIL);
-                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1)); // Set expiration date
-                                                                                                 // in the future
+                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1));
                                 existingFile.setFilePassword(null);
                                 existingFile.setFileLink(FILE_TOKEN);
 
@@ -487,9 +489,7 @@ public class FileServiceTest {
                                 // GIVEN
                                 FileData existingFile = new FileData();
                                 existingFile.setId(VALID_FILE_ID);
-                                existingFile.setEmail(EMAIL);
-                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1)); // Set expiration date
-                                                                                                 // in the future
+                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1));
                                 existingFile.setFilePassword(PASSWORD);
                                 existingFile.setFileLink(""); // Set file link to empty string
 
@@ -509,9 +509,7 @@ public class FileServiceTest {
                                 // GIVEN
                                 FileData existingFile = new FileData();
                                 existingFile.setId(VALID_FILE_ID);
-                                existingFile.setEmail(EMAIL);
-                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1)); // Set expiration date
-                                                                                                 // in the future
+                                existingFile.setExpirationDate(LocalDateTime.now().plusDays(1));
                                 existingFile.setFilePassword(null);
                                 existingFile.setFileLink(""); // Set file link to empty string
 
@@ -554,7 +552,7 @@ public class FileServiceTest {
                 @DisplayName("Given a valid authenticated user and email, when listFiles is called, then the list of files is returned")
                 public void test_listFiles_valid_input_return_list_of_files() {
                         // GIVEN
-                        ArrayList<FileInfoDTO> expectedFiles = new ArrayList();
+                        ArrayList<FileInfoDTO> expectedFiles = new ArrayList<FileInfoDTO>();
                         when(fileRepository.findFilesByEmail(EMAIL)).thenReturn(expectedFiles);
 
                         // WHEN
