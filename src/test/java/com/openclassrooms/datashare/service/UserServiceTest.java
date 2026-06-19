@@ -1,11 +1,9 @@
 package com.openclassrooms.datashare.service;
 
-import com.openclassrooms.datashare.dto.AuthDTO;
 import com.openclassrooms.datashare.dto.RegisterDTO;
 import com.openclassrooms.datashare.entities.User;
+import com.openclassrooms.datashare.handler.exceptions.UserAlreadyExistsException;
 import com.openclassrooms.datashare.repository.UserRepository;
-import com.openclassrooms.datashare.service.JwtService;
-import com.openclassrooms.datashare.service.UserService;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -77,7 +75,7 @@ public class UserServiceTest {
 
             // THEN
             Assertions.assertThrows(
-                    IllegalArgumentException.class,
+                    UserAlreadyExistsException.class,
                     () -> userService.register(registerDTO));
 
             verify(userRepository, never()).save(any());

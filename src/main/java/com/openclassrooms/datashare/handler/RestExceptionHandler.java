@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.openclassrooms.datashare.handler.exceptions.UserAlreadyExistsException;
+
 /**
  * Global exception handler for REST-related exceptions.
  * This class extends {@link ResponseEntityExceptionHandler} and uses Spring's
@@ -55,6 +57,25 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         logError(runtimeException);
         return handleExceptionInternal(runtimeException, getErrorDetails(runtimeException, request), new HttpHeaders(),
                 HttpStatus.BAD_REQUEST, request);
+    }
+
+    /**
+     * Handles {@link UserAlreadyExistsException} by returning a response with HTTP
+     * status 409 (Conflict).
+     *
+     * @param userAlreadyExistsException The exception to handle.
+     * @param request                    The web request during which the exception
+     *                                   occurred.
+     * @return A {@link ResponseEntity} with HTTP status 409 and error details.
+     */
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(value = { UserAlreadyExistsException.class })
+    protected ResponseEntity<Object> handleUserAlreadyExistsException(
+            UserAlreadyExistsException userAlreadyExistsException,
+            WebRequest request) {
+        logError(userAlreadyExistsException);
+        return handleExceptionInternal(userAlreadyExistsException, getErrorDetails(userAlreadyExistsException, request),
+                new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
     /**

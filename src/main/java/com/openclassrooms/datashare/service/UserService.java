@@ -2,7 +2,9 @@ package com.openclassrooms.datashare.service;
 
 import com.openclassrooms.datashare.dto.RegisterDTO;
 import com.openclassrooms.datashare.entities.User;
+import com.openclassrooms.datashare.handler.exceptions.UserAlreadyExistsException;
 import com.openclassrooms.datashare.repository.UserRepository;
+
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -44,14 +46,15 @@ public class UserService {
      * Registers a new user to the database.
      * 
      * @param authDTO the user to be registered
-     * @throws IllegalArgumentException if a user with the same login already exists
+     * @throws UserAlreadyExistsException if a user with the same email already
+     *                                    exists
      */
     public void register(RegisterDTO registerDTO) {
         Assert.notNull(registerDTO, "Register data must not be null");
 
         Optional<User> optionalUser = userRepository.findByEmail(registerDTO.getEmail());
         if (optionalUser.isPresent()) {
-            throw new IllegalArgumentException("User with email " + registerDTO.getEmail() + " already exists");
+            throw new UserAlreadyExistsException("User with email " + registerDTO.getEmail() + " already exists");
         }
         User user = new User();
         user.setEmail(registerDTO.getEmail());
