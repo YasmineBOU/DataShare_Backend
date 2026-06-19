@@ -32,3 +32,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Main Project ###
+.env
+src/main/resources/application.yml
+*.log
