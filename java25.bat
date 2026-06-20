@@ -6,6 +6,7 @@
 @REM
 @REM  Actions:
 @REM    run            -> mvn clean install && mvn spring-boot:run
+@REM    run_with_tests -> mvn clean install -Dmaven.test.skip=true && mvn spring-boot:run
 @REM    test           -> mvn clean compile test
 @REM    test <Class>   -> mvn clean compile && mvn -Dtest=<Class> test
 @REM    jacoco         -> mvn clean compile test jacoco:report
@@ -62,6 +63,11 @@ set "ACTION=%~1"
 set "EXTRA=%~2"
 
 if /i "%ACTION%"=="run" (
+	mvn clean install -Dmaven.test.skip=true && mvn spring-boot:run
+	goto :eof
+)
+
+if /i "%ACTION%"=="run_with_tests" (
 	mvn clean install && mvn spring-boot:run
 	goto :eof
 )
