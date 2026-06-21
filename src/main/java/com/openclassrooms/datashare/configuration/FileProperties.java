@@ -33,6 +33,12 @@ public class FileProperties {
     private List<String> forbiddenExtensions;
 
     /**
+     * Maximum allowed file size for uploads.
+     * Example: {@code 1GB}, {@code 10MB}, {@code 500KB}.
+     */
+    private String maxFileSize;
+
+    /**
      * Returns the list of forbidden file extensions.
      *
      * @return A list of forbidden file extensions.
@@ -48,6 +54,24 @@ public class FileProperties {
      */
     public void setForbiddenExtensions(List<String> forbiddenExtensions) {
         this.forbiddenExtensions = forbiddenExtensions;
+    }
+
+    /**
+     * Returns the maximum allowed file size for uploads.
+     *
+     * @return The maximum file size as a string (e.g., "1GB", "10MB").
+     */
+    public String getMaxFileSize() {
+        return maxFileSize;
+    }
+
+    /**
+     * Sets the maximum allowed file size for uploads.
+     *
+     * @param maxFileSize The maximum file size to set (e.g., "1GB", "10MB").
+     */
+    public void setMaxFileSize(String maxFileSize) {
+        this.maxFileSize = maxFileSize;
     }
 
 }

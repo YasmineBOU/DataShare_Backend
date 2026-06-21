@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Map;
 
 import org.bouncycastle.crypto.digests.Blake3Digest;
 import org.springframework.web.multipart.MultipartFile;
@@ -116,6 +117,51 @@ public class FileUtils {
             return "";
         }
         return filename.substring(filename.lastIndexOf('.')).toLowerCase();
+    }
+
+    /**
+     * Parses a file size string (e.g., "1GB", "10MB", "500KB") into its
+     * equivalent size in bytes.
+     *
+     * @param size The file size string to parse.
+     * @return The equivalent size in bytes.
+     * @throws IllegalArgumentException If the size string is invalid or null.
+     */
+    public static long parseFileSize(String size) {
+        String sizeStr = null;
+        String sizeUnit = null;
+        Long sizeMultiplier = 1024L;
+        Map<String, Integer> sizeUnits = Map.of(
+                "B", 0,
+                "KB", 1,
+                "MB", 2,
+                "GB", 3);
+
+        if (size == null || size.length() < 2) {
+            throw new IllegalArgumentException("File size must not be null (e.g., '1GB', '10MB', '500KB')");
+        }
+
+        if (!size.endsWith("B")) {
+            throw new IllegalArgumentException(
+                    "Invalid size unit. Must be one of: " + sizeUnits.keySet() +
+                            "(e.g., '1GB', '10MB', '500KB')");
+        }
+        // Check for 2-character units first (e.g., "GB", "MB", "KB"), then 1-character
+        // units (e.g., "B")
+        for (int unitLength = 2; unitLength >= 1; unitLength--) {
+            if (sizeUnits.containsKey(size.substring(size.length() - unitLength))) {
+                sizeStr = size.substring(0, size.length() - unitLength);
+                sizeUnit = size.substring(size.length() - unitLength);
+                break;
+            }
+        }
+        try {
+            Long.parseLong(sizeStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                    "Invalid size value. Must be a number followed by a valid unit (e.g., '1GB', '10MB', '500KB')");
+        }
+        return Long.parseLong(sizeStr) * (long) Math.pow(sizeMultiplier, sizeUnits.get(sizeUnit));
     }
 
 }

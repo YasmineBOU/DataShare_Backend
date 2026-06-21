@@ -102,7 +102,7 @@ public class FileService {
         Assert.isTrue(expirationDays > 0, "Expiration days must be a positive number");
 
         try {
-
+            // Validate file extension against forbidden extensions
             if (fileProperties.getForbiddenExtensions() != null) {
                 String originalFilename = uploadedFile.getOriginalFilename();
                 if (originalFilename != null) {
@@ -112,6 +112,14 @@ public class FileService {
                         throw new FileExtensionException(
                                 "Files with extension '" + fileExtension + "' are not allowed");
                     }
+                }
+            }
+            // Validate file size against the maximum allowed size
+            if (fileProperties.getMaxFileSize() != null) {
+                long maxFileSize = FileUtils.parseFileSize(fileProperties.getMaxFileSize());
+                if (uploadedFile.getSize() > maxFileSize) {
+                    log.warn("Attempt to upload file exceeding maximum size: {}", uploadedFile.getSize());
+                    throw new FileSizeExceededException("File size exceeds the maximum allowed size");
                 }
             }
             String fileHash = FileUtils.calculateFileHash(uploadedFile);

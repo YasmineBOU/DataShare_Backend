@@ -131,6 +131,25 @@ public class FileExceptionHandler {
         }
 
         /**
+         * Handles {@link FileSizeExceededException} and returns a response with HTTP
+         * status 413 (Content Too Large).
+         *
+         * @param fileSizeExceededException The exception to handle.
+         * @param request                   The web request during which the
+         *                                  exception occurred.
+         * @return A {@link ResponseEntity} with HTTP status 413 and error details.
+         */
+        @ExceptionHandler(value = { FileSizeExceededException.class })
+        protected ResponseEntity<Object> handleFileSizeExceededException(
+                        FileSizeExceededException fileSizeExceededException,
+                        WebRequest request) {
+                logError(fileSizeExceededException);
+                return ResponseEntity
+                                .status(HttpStatus.CONTENT_TOO_LARGE)
+                                .body(getErrorDetails(fileSizeExceededException, request));
+        }
+
+        /**
          * Handles {@link FileHashMismatchException} and returns a response with HTTP
          * status 400 (Bad Request).
          *
