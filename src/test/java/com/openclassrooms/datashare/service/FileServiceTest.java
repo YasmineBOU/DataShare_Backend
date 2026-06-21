@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -297,28 +298,28 @@ public class FileServiceTest {
                 }
 
                 @Test
-                @DisplayName("Given file with forbidden extension, when uploadFile is called, then ForbiddenFileExtensionException is thrown.")
-                public void test_uploadFile_with_forbidden_extension_throws_ForbiddenFileExtensionException() {
+                @DisplayName("Given file exceeding maximum size, when uploadFile is called, then FileSizeExceededException is thrown.")
+                public void test_uploadFile_with_size_exceeding_limit_throws_FileSizeExceededException() {
                         // GIVEN
-                        String filename = "malware.exe";
-                        MultipartFile uploadedFile = new MockMultipartFile(
-                                        "file",
-                                        filename,
-                                        "application/octet-stream",
-                                        new byte[1024]);
+                        String filename = "large-file.pdf";
+                        MultipartFile uploadedFile = mock(MultipartFile.class);
+                        when(uploadedFile.getOriginalFilename()).thenReturn(filename);
+                        when(uploadedFile.getSize()).thenReturn(2_000_000_000L); // 2 GB
 
                         when(fileProperties.getForbiddenExtensions()).thenReturn(List.of("exe", "bat"));
+                        mockedFileUtils.when(() -> FileUtils.getFileExtension(filename))
+                                        .thenReturn("pdf");
 
-                        mockedFileUtils.when(
-                                        () -> FileUtils.getFileExtension(filename))
-                                        .thenReturn("exe");
+                        when(fileProperties.getMaxFileSize()).thenReturn("1GB");
+                        mockedFileUtils.when(() -> FileUtils.parseFileSize("1GB"))
+                                        .thenReturn(1_073_741_824L); // 1 GB
 
                         // THEN
                         Assertions.assertThrows(
-                                        FileExtensionException.class,
-                                        () -> fileService.uploadFile(uploadedFile, FILE_DATA,
-                                                        EXPIRATION_DAYS));
+                                        FileSizeExceededException.class,
+                                        () -> fileService.uploadFile(uploadedFile, FILE_DATA, EXPIRATION_DAYS));
                 }
+
         }
 
         @Nested
