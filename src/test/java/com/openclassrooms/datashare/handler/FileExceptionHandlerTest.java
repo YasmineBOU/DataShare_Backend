@@ -115,6 +115,24 @@ public class FileExceptionHandlerTest {
     }
 
     @Test
+    @DisplayName("Given FileSizeExceededException, when handleFileSizeExceededException is called, then 413 with ErrorDetails is returned.")
+    public void test_handleFileSizeExceededException_should_return_413_with_ErrorDetails() {
+        // GIVEN
+        String exceptionMsg = "File size exceeded";
+        FileSizeExceededException exception = new FileSizeExceededException(exceptionMsg);
+
+        // WHEN
+        var response = fileExceptionHandler.handleFileSizeExceededException(exception, buildRequest(testUri));
+
+        // THEN
+        assertEquals(HttpStatus.CONTENT_TOO_LARGE, response.getStatusCode());
+        ErrorDetails body = assertInstanceOf(ErrorDetails.class, response.getBody());
+        assertEquals(exceptionMsg, body.getMessage());
+        assertEquals("uri=" + testUri, body.getDetails());
+        assertNotNull(body.getTimestamp());
+    }
+
+    @Test
     @DisplayName("Given FileHashMismatchException, when handleFileHashMismatchException is called, then 400 with ErrorDetails is returned.")
     public void test_handleFileHashMismatchException_should_return_400_with_ErrorDetails() {
         // GIVEN
