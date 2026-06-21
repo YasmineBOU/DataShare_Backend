@@ -1,6 +1,7 @@
 package com.openclassrooms.datashare.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -159,6 +160,68 @@ public class FileUtilsTest {
 
             // THEN
             assertThat(extension).isEqualTo(".txt");
+        }
+    }
+
+    @Nested
+    @Tag("parseFileSize")
+    @DisplayName("Tests for parseFileSize method")
+    class ParseFileSizeTest {
+
+        @Test
+        @DisplayName("Given null size, when parseFileSize is called, then an IllegalArgumentException is thrown.")
+        public void test_parseFileSize_with_null_size_should_throw_IllegalArgumentException() {
+            // WHEN & THEN
+            Assertions.assertThrows(
+                    IllegalArgumentException.class,
+                    () -> FileUtils.parseFileSize(null));
+        }
+
+        @Test
+        @DisplayName("Given short size, when parseFileSize is called, then an IllegalArgumentException is thrown.")
+        public void test_parseFileSize_with_short_size_should_throw_IllegalArgumentException() {
+            // WHEN & THEN
+            Assertions.assertThrows(
+                    IllegalArgumentException.class,
+                    () -> FileUtils.parseFileSize("1"));
+        }
+
+        @Test
+        @DisplayName("Given size with invalid unit, when parseFileSize is called, then an IllegalArgumentException is thrown.")
+        public void test_parseFileSize_with_invalid_unit_should_throw_IllegalArgumentException() {
+            // WHEN & THEN
+            Assertions.assertThrows(
+                    IllegalArgumentException.class,
+                    () -> FileUtils.parseFileSize("1GKB"));
+        }
+
+        @Test
+        @DisplayName("Given invalid size unit, when parseFileSize is called, then an IllegalArgumentException is thrown.")
+        public void test_parseFileSize_with_invalid_size_unit_should_throw_IllegalArgumentException() {
+            // WHEN & THEN
+            Assertions.assertThrows(
+                    IllegalArgumentException.class,
+                    () -> FileUtils.parseFileSize("1GKB"));
+        }
+
+        @Test
+        @DisplayName("Given valid size string with lowercase unit, when parseFileSize is called, then the correct size in bytes is returned.")
+        public void test_parseFileSize_with_valid_size_lowercase_unit_string_should_return_correct_size_in_bytes() {
+            // WHEN
+            long size = FileUtils.parseFileSize("1mb");
+
+            // THEN
+            assertThat(size).isEqualTo(1024 * 1024);
+        }
+
+        @Test
+        @DisplayName("Given valid size string, when parseFileSize is called, then the correct size in bytes is returned.")
+        public void test_parseFileSize_with_valid_size_string_should_return_correct_size_in_bytes() {
+            // WHEN
+            long size = FileUtils.parseFileSize("1GB");
+
+            // THEN
+            assertThat(size).isEqualTo(1024 * 1024 * 1024);
         }
     }
 }

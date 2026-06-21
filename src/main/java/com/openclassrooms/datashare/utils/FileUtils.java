@@ -141,6 +141,7 @@ public class FileUtils {
             throw new IllegalArgumentException("File size must not be null (e.g., '1GB', '10MB', '500KB')");
         }
 
+        size = size.toUpperCase();
         if (!size.endsWith("B")) {
             throw new IllegalArgumentException(
                     "Invalid size unit. Must be one of: " + sizeUnits.keySet() +
