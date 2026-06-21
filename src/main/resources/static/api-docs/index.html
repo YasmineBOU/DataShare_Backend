@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>DataShare API — Documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.min.css" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fafafa;
+    }
+    .topbar {
+      background: #1f4e79 !important;
+    }
+    .topbar .download-url-wrapper { display: none; }
+    .swagger-ui .topbar-wrapper img {
+      display: none;
+    }
+    .swagger-ui .topbar-wrapper::before {
+      content: "DataShare API";
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      font-family: Arial, sans-serif;
+      letter-spacing: 0.5px;
+    }
+    .swagger-ui .info .title {
+      color: #1f4e79;
+    }
+    .swagger-ui .scheme-container {
+      box-shadow: none;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    #loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      color: #888;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">Chargement de la documentation...</div>
+  <div id="swagger-ui"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-standalone-preset.min.js" crossorigin></script>
+  <script>
+    window.onload = () => {
+      const ui = SwaggerUIBundle({
+        url: "./openapi.yaml",
+        dom_id: "#swagger-ui",
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout",
+        docExpansion: "list",
+        defaultModelsExpandDepth: 1,
+        displayRequestDuration: true,
+        tryItOutEnabled: true,
+        filter: true,
+        withCredentials: true,
+        onComplete: () => {
+          const loading = document.getElementById("loading");
+          if (loading) loading.style.display = "none";
+        }
+      });
+      window.ui = ui;
+    };
+  </script>
+</body>
+</html>

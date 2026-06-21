@@ -1,0 +1,448 @@
+openapi: 3.0.0
+info:
+  title: DataShare API
+  description: >
+    API REST pour l'application DataShare — partage de fichiers sécurisé avec
+    authentification JWT (cookie HttpOnly), protection optionnelle par mot de
+    passe, et expiration automatique des fichiers.
+  version: 1.0.0
+  contact:
+    name: DataShare
+servers:
+  - url: https://localhost:8443/api
+    description: Environnement de développement local
+
+tags:
+  - name: User
+    description: Inscription, authentification et gestion de session
+  - name: Files
+    description: Upload, téléchargement, listing et suppression de fichiers
+
+security:
+  - AuthCookie: []
+
+paths:
+  # ──────────────────────────────────────────────
+  # USER
+  # ──────────────────────────────────────────────
+  /register:
+    post:
+      tags: [User]
+      summary: Inscription d'un nouvel utilisateur
+      description: >
+        Crée un nouveau compte utilisateur. Le mot de passe doit contenir au
+        moins 8 caractères, une minuscule, une majuscule et un chiffre.
+      operationId: registerUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterDTO"
+            examples:
+              default:
+                value:
+                  email: "user@example.com"
+                  password: "Password1"
+      responses:
+        "201":
+          description: Utilisateur créé avec succès
+        "400":
+          description: Données invalides (email déjà utilisé, mot de passe non conforme)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /login:
+    post:
+      tags: [User]
+      summary: Connexion utilisateur
+      description: >
+        Authentifie l'utilisateur et pose un cookie HttpOnly `AUTH_TOKEN`
+        contenant le JWT de session (durée de vie 1h).
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthDTO"
+      responses:
+        "200":
+          description: Connexion réussie
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: AUTH_TOKEN=eyJhbGciOi...; Path=/; HttpOnly; Secure; SameSite=None
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: Identifiants incorrects
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /logout:
+    post:
+      tags: [User]
+      summary: Déconnexion utilisateur
+      description: Invalide la session et supprime le cookie `AUTH_TOKEN`.
+      operationId: logoutUser
+      responses:
+        "200":
+          description: Déconnexion réussie
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: Utilisateur non authentifié
+
+  /auth/me:
+    get:
+      tags: [User]
+      summary: Profil de l'utilisateur authentifié
+      description: >
+        Retourne l'état d'authentification courant à partir du cookie
+        `AUTH_TOKEN`. Utilisé au démarrage de l'application pour restaurer
+        la session.
+      operationId: getAuthenticatedUser
+      responses:
+        "200":
+          description: État d'authentification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthMeDTO"
+              examples:
+                authenticated:
+                  value: { authenticated: true, email: "user@example.com" }
+                anonymous:
+                  value: { authenticated: false, email: null }
+
+  # ──────────────────────────────────────────────
+  # FILES
+  # ──────────────────────────────────────────────
+  /files/upload:
+    post:
+      tags: [Files]
+      summary: Upload d'un fichier
+      description: >
+        Dépose un fichier et retourne un token unique permettant de générer
+        un lien de partage. Accessible aux utilisateurs connectés et anonymes.
+        Le hash BLAKE3 est calculé côté client puis vérifié côté serveur.
+      operationId: uploadFile
+      security: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/FileUploadDTO"
+      responses:
+        "200":
+          description: Fichier uploadé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResponse"
+        "400":
+          description: >
+            Requête invalide — fichier manquant, extension interdite,
+            hash ne correspondant pas, ou champ obligatoire manquant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "413":
+          description: Fichier trop volumineux (> 1 Go)
+
+  /files/download:
+    post:
+      tags: [Files]
+      summary: Obtenir le lien de téléchargement d'un fichier
+      description: >
+        Génère une URL présignée (Backblaze B2) à durée limitée permettant de
+        télécharger le fichier. Le mot de passe est requis si le fichier est
+        protégé.
+      operationId: getFileDownloadLink
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileDownloadDTO"
+      responses:
+        "200":
+          description: Lien de téléchargement généré
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileLinkResponse"
+        "401":
+          description: Mot de passe incorrect ou manquant
+        "404":
+          description: Fichier introuvable
+        "410":
+          description: Fichier expiré
+
+  /files/list:
+    get:
+      tags: [Files]
+      summary: Lister les fichiers de l'utilisateur connecté
+      operationId: listUserFiles
+      parameters:
+        - name: email
+          in: query
+          required: true
+          description: Email de l'utilisateur authentifié
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: Liste des fichiers de l'utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileListResponse"
+        "401":
+          description: Utilisateur non authentifié
+
+  /files/info:
+    get:
+      tags: [Files]
+      summary: Métadonnées d'un fichier par token
+      description: >
+        Retourne les métadonnées publiques d'un fichier (nom, taille,
+        protection par mot de passe, date d'expiration) sans nécessiter
+        d'authentification.
+      operationId: getFileInfo
+      security: []
+      parameters:
+        - name: fileToken
+          in: query
+          required: true
+          schema:
+            type: string
+          example: a1b2c3d4e5f6g7h8i9j0
+      responses:
+        "200":
+          description: Métadonnées du fichier
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileInfoDTO"
+        "404":
+          description: Fichier introuvable, expiré ou supprimé
+
+  /files/delete/{id}:
+    delete:
+      tags: [Files]
+      summary: Supprimer un fichier
+      description: >
+        Supprime définitivement un fichier (stockage Backblaze B2 et
+        métadonnées en base). Seul le propriétaire du fichier peut le
+        supprimer.
+      operationId: deleteFile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Fichier supprimé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: Utilisateur non authentifié
+        "404":
+          description: Fichier introuvable
+
+components:
+  securitySchemes:
+    AuthCookie:
+      type: apiKey
+      name: AUTH_TOKEN
+      in: cookie
+      description: >
+        Cookie JWT HttpOnly posé après connexion réussie via /login.
+        Inclus automatiquement par le navigateur (withCredentials).
+
+  schemas:
+    # ── Requêtes ──
+    RegisterDTO:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          description: Adresse email de l'utilisateur (doit être unique)
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: >
+            Minimum 8 caractères, au moins 1 chiffre, 1 minuscule, 1 majuscule
+          example: "Password1"
+
+    AuthDTO:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    FileUploadDTO:
+      type: object
+      required: [file, filename, fileSize, fileType, hash, expirationDays]
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Contenu binaire du fichier à uploader
+        filename:
+          type: string
+          description: Nom original du fichier
+        fileSize:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Taille du fichier en octets
+        fileType:
+          type: string
+          description: Type MIME du fichier
+          example: application/pdf
+        hash:
+          type: string
+          description: >
+            Empreinte BLAKE3 du fichier calculée côté client, vérifiée
+            côté serveur pour garantir l'intégrité
+          example: e12d03a1e25c8ff2e39c3f265f907071005a19ad85a308c0ed9aedfcfbba3aba
+        expirationDays:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: Nombre de jours avant expiration du fichier
+          example: 7
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: Email de l'utilisateur connecté (absent si upload anonyme)
+        filePassword:
+          type: string
+          format: password
+          minLength: 6
+          nullable: true
+          description: Mot de passe optionnel de protection (min. 6 caractères)
+
+    FileDownloadDTO:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Identifiant unique du fichier
+        filePassword:
+          type: string
+          format: password
+          nullable: true
+          description: Mot de passe requis si le fichier est protégé
+
+    # ── Réponses ──
+    AuthMeDTO:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+        email:
+          type: string
+          format: email
+          nullable: true
+
+    FileInfoDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        filename:
+          type: string
+        fileToken:
+          type: string
+        fileSize:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        expirationDate:
+          type: string
+          format: date-time
+        hasPassword:
+          type: boolean
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Operation successful"
+
+    UploadResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "File uploaded successfully !"
+        fileToken:
+          type: string
+          example: a1b2c3d4e5f6g7h8i9j0
+
+    FileLinkResponse:
+      type: object
+      properties:
+        fileLink:
+          type: string
+          format: uri
+          description: URL présignée Backblaze B2 à durée limitée
+
+    FileListResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileInfoDTO"
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        status:
+          type: integer
+        error:
+          type: string
