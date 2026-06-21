@@ -1,45 +1,7 @@
 @startuml
 
-class FileData {
-	{field} +createdAt : LocalDateTime
-	{field} +deleted : boolean
-	{field} +expirationDate : LocalDateTime
-	{field} +fileKey : String
-	{field} +fileLink : String
-	{field} +filePassword : String
-	{field} +fileSize : long
-	{field} +fileToken : String
-	{field} +fileType : String
-	{field} +filename : String
-	{field} +hash : String
-	{field} +id : Long
-	{field} +updatedAt : LocalDateTime
-	{method} #canEqual ( paramObject1 : Object ) : boolean
-	{method} +equals ( paramObject1 : Object ) : boolean
-	{method} +getEmail () : String
-	{method} +hashCode () : int
-	{method} +toString () : String
-}
 
 
-class User {
-	{field} +created_at : LocalDateTime
-	{field} +email : String
-	{field} +id : Long
-	{field} +password : String
-	{field} +updated_at : LocalDateTime
-	{method} #canEqual ( paramObject1 : Object ) : boolean
-	{method} +equals ( paramObject1 : Object ) : boolean
-	{method} +getAuthorities () : Collection
-	{method} +getUsername () : String
-	{method} +hashCode () : int
-	{method} +toString () : String
-}
-
-
-
-
-FileData -->  User : user
 
 
 @enduml

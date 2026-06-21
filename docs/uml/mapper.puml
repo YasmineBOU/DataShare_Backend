@@ -1,19 +1,7 @@
 @startuml
 
-interface FileDtoMapper {
-	{method} +mapEmailToUser ( paramString1 : String , paramUserRepository2 : UserRepository ) : User
-	{method}  {abstract} +toEntity ( paramFileUploadDTO1 : FileUploadDTO , paramUserRepository2 : UserRepository ) : FileData
-}
 
 
-class FileDtoMapperImpl {
-	{method} +toEntity ( paramFileUploadDTO1 : FileUploadDTO , paramUserRepository2 : UserRepository ) : FileData
-}
-
-
-
-
-FileDtoMapperImpl ..|>  FileDtoMapper
 
 
 @enduml
