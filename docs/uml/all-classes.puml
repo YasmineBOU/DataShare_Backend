@@ -1,0 +1,380 @@
+@startuml
+
+class AppConfig {
+	{method}  {static} +propertySourcesPlaceholderConfigurer () : PropertySourcesPlaceholderConfigurer
+}
+
+
+class AuthDTO {
+	{field} +email : String
+	{field} +password : String
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class AuthMeDTO {
+	{field} -authenticated : boolean
+	{field} -email : String
+	{method} +authenticated () : boolean
+	{method} +email () : String
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class BackblazeB2Config {
+	{field} -applicationKey : String
+	{field} -endpoint : String
+	{field} -keyId : String
+	{field} {static} -log : Logger
+	{field} -region : String
+	{method} +s3Client () : S3Client
+}
+
+
+class BackblazeB2Properties {
+	{field} +applicationKey : String
+	{field} +bucketName : String
+	{field} +endpoint : String
+	{field} +keyId : String
+	{field} +region : String
+}
+
+
+class BackblazeB2Service {
+	{field} {static} -MULTIPART_CHUNK_SIZE : int
+	{field} {static} -MULTIPART_THRESHOLD_BYTES : long
+	{field} {static} -log : Logger
+	{field} -s3Client : S3Client
+	{field} -s3Presigner : S3Presigner
+	{method} +deleteFile ( paramString1 : String ) : void
+	{method} +generatePresignedUrl ( paramString1 : String , paramDuration2 : Duration ) : URL
+	{method} -generateUniqueKey ( paramString1 : String , paramString2 : String ) : String
+	{method} +uploadFile ( paramMultipartFile1 : MultipartFile , paramString2 : String ) : String
+	{method} -uploadMultipartFile ( paramMultipartFile1 : MultipartFile , paramString2 : String , paramString3 : String ) : String
+}
+
+
+class CorsConfig {
+	{method} +corsConfigurationSource () : CorsConfigurationSource
+}
+
+
+class CustomUserDetailService {
+	{method} +loadUserByUsername ( paramString1 : String ) : UserDetails
+}
+
+
+class DataShareApplication {
+	{method}  {static} +main ( paramString;1 : String[] ) : void
+}
+
+
+class ErrorDetails {
+	{field} +details : String
+	{field} +message : String
+	{field} +timestamp : LocalDateTime
+}
+
+
+class FileController {
+	{field} {static} -log : Logger
+	{method} +deleteFile ( paramUser1 : User , paramLong2 : Long ) : ResponseEntity
+	{method} +downloadFile ( paramFileDownloadDTO1 : FileDownloadDTO ) : ResponseEntity
+	{method} +getFileInfo ( paramUser1 : User , paramString2 : String ) : ResponseEntity
+	{method} +listFiles ( paramUser1 : User , paramString2 : String ) : ResponseEntity
+	{method} +uploadFile ( paramFileUploadDTO1 : FileUploadDTO ) : ResponseEntity
+}
+
+
+class FileData {
+	{field} +createdAt : LocalDateTime
+	{field} +deleted : boolean
+	{field} +expirationDate : LocalDateTime
+	{field} +fileKey : String
+	{field} +fileLink : String
+	{field} +filePassword : String
+	{field} +fileSize : long
+	{field} +fileToken : String
+	{field} +fileType : String
+	{field} +filename : String
+	{field} +hash : String
+	{field} +id : Long
+	{field} +updatedAt : LocalDateTime
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +getEmail () : String
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class FileDeletionException {
+}
+
+
+class FileDownloadDTO {
+	{field} +filePassword : String
+	{field} +id : Long
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+interface FileDtoMapper {
+	{method} +mapEmailToUser ( paramString1 : String , paramUserRepository2 : UserRepository ) : User
+	{method}  {abstract} +toEntity ( paramFileUploadDTO1 : FileUploadDTO , paramUserRepository2 : UserRepository ) : FileData
+}
+
+
+class FileExceptionHandler {
+	{method} -getErrorDetails ( paramException1 : Exception , paramWebRequest2 : WebRequest ) : ErrorDetails
+	{method} #handleFileDeletionException ( paramFileDeletionException1 : FileDeletionException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileExpiredException ( paramFileExpiredException1 : FileExpiredException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileExtensionException ( paramFileExtensionException1 : FileExtensionException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileHashComputationException ( paramFileHashComputationException1 : FileHashComputationException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileHashMismatchException ( paramFileHashMismatchException1 : FileHashMismatchException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileLinkGenerationException ( paramFileLinkGenerationException1 : FileLinkGenerationException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileLinkNullException ( paramFileLinkNullException1 : FileLinkNullException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileNotFoundException ( paramFileNotFoundException1 : FileNotFoundException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileSizeExceededException ( paramFileSizeExceededException1 : FileSizeExceededException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleInvalidPasswordException ( paramInvalidPasswordException1 : InvalidPasswordException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} -logError ( paramException1 : Exception ) : void
+}
+
+
+class FileExpirationCleaner {
+	{field} {static} -log : Logger
+	{method} +cleanExpiredFiles () : void
+}
+
+
+class FileExpiredException {
+}
+
+
+class FileExtensionException {
+}
+
+
+class FileHashComputationException {
+}
+
+
+class FileHashMismatchException {
+}
+
+
+class FileInfoDTO {
+	{field} +createdAt : LocalDateTime
+	{field} +expirationDate : LocalDateTime
+	{field} +fileSize : long
+	{field} +fileToken : String
+	{field} +filename : String
+	{field} +hasPassword : Boolean
+	{field} +id : Long
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class FileLinkGenerationException {
+}
+
+
+class FileLinkNullException {
+}
+
+
+class FileNotFoundException {
+}
+
+
+class FileProperties {
+	{field} +forbiddenExtensions : List
+	{field} +maxFileSize : String
+}
+
+
+interface FileRepository {
+	{method}  {abstract} +findByFileKey ( paramString1 : String ) : Optional
+	{method}  {abstract} +findExpiredFiles ( paramLocalDateTime1 : LocalDateTime ) : List
+	{method}  {abstract} +findFileInfoByFileToken ( paramString1 : String ) : Optional
+	{method}  {abstract} +findFilesByEmail ( paramString1 : String ) : List
+}
+
+
+class FileService {
+	{field} {static} -log : Logger
+	{field} -passwordEncoder : PasswordEncoder
+	{method} +deleteFile ( paramUser1 : User , paramLong2 : Long ) : void
+	{method} +downloadFile ( paramLong1 : Long , paramString2 : String ) : String
+	{method} +getFileInfoByFileToken ( paramString1 : String ) : FileInfoDTO
+	{method} +listFiles ( paramUser1 : User , paramString2 : String ) : Iterable
+	{method} +uploadFile ( paramMultipartFile1 : MultipartFile , paramFileData2 : FileData , paramint3 : int ) : String
+}
+
+
+class FileSizeExceededException {
+}
+
+
+class FileUploadDTO {
+	{field} +email : String
+	{field} +expirationDays : Integer
+	{field} +file : MultipartFile
+	{field} +filePassword : String
+	{field} +fileSize : long
+	{field} +fileType : String
+	{field} +filename : String
+	{field} +hash : String
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class FileUtils {
+	{method}  {static} -bytesToHex ( param[B1 : byte[] ) : String
+	{method}  {static} +calculateFileHash ( paramMultipartFile1 : MultipartFile ) : String
+	{method}  {static} +generateUniqueFileToken ( paramString1 : String , paramString2 : String , paramint3 : int ) : String
+	{method}  {static} +getFileExtension ( paramString1 : String ) : String
+	{method}  {static} +parseFileSize ( paramString1 : String ) : long
+}
+
+
+class InvalidPasswordException {
+}
+
+
+class JwtAuthenticationFilter {
+	{field} {static} -log : Logger
+	{method} #doFilterInternal ( paramHttpServletRequest1 : HttpServletRequest , paramHttpServletResponse2 : HttpServletResponse , paramFilterChain3 : FilterChain ) : void
+}
+
+
+class JwtService {
+	{field} -encodedKey : Key
+	{field} -jwtExpirationMs : long
+	{method} +generateToken ( paramUserDetails1 : UserDetails ) : String
+	{method} +validateTokenAndGetUsername ( paramString1 : String ) : String
+}
+
+
+class RegisterDTO {
+	{field} +email : String
+	{field} +password : String
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class RequestLoggingFilterConfig {
+	{method} +commonsRequestLoggingFilter () : CommonsRequestLoggingFilter
+}
+
+
+class RestExceptionHandler {
+	{method} -getErrorDetails ( paramException1 : Exception , paramWebRequest2 : WebRequest ) : ErrorDetails
+	{method} #handleBadCredentialsException ( paramBadCredentialsException1 : BadCredentialsException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleConflict ( paramRuntimeException1 : RuntimeException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleException ( paramRuntimeException1 : RuntimeException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleForbiddenException ( paramAccessDeniedException1 : AccessDeniedException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleUserAlreadyExistsException ( paramUserAlreadyExistsException1 : UserAlreadyExistsException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} -logError ( paramException1 : Exception ) : void
+}
+
+
+class SecurityConstants {
+	{field} {static} +AUTH_COOKIE_MAX_AGE_SECONDS : long
+	{field} {static} +AUTH_TOKEN_COOKIE_NAME : String
+	{field} {static} +PUBLIC_ENDPOINTS : String[]
+	{field} {static} +PUBLIC_PATHS : Set
+}
+
+
+class SpringSecurityConfig {
+	{field} -corsConfigurationSource : CorsConfigurationSource
+	{method} +authenticationManager ( paramAuthenticationConfiguration1 : AuthenticationConfiguration ) : AuthenticationManager
+	{method} +authenticationProvider () : DaoAuthenticationProvider
+	{method} +passwordEncoder () : PasswordEncoder
+	{method} +securityFilterChain ( paramHttpSecurity1 : HttpSecurity ) : SecurityFilterChain
+}
+
+
+class User {
+	{field} +created_at : LocalDateTime
+	{field} +email : String
+	{field} +id : Long
+	{field} +password : String
+	{field} +updated_at : LocalDateTime
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +getAuthorities () : Collection
+	{method} +getUsername () : String
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class UserAlreadyExistsException {
+}
+
+
+class UserController {
+	{field} -cookieSecure : boolean
+	{field} {static} -log : Logger
+	{method} +login ( paramAuthDTO1 : AuthDTO , paramHttpServletResponse2 : HttpServletResponse ) : ResponseEntity
+	{method} +logout ( paramHttpServletResponse1 : HttpServletResponse ) : ResponseEntity
+	{method} +me () : ResponseEntity
+	{method} +register ( paramRegisterDTO1 : RegisterDTO ) : ResponseEntity
+}
+
+
+interface UserRepository {
+	{method}  {abstract} +findByEmail ( paramString1 : String ) : Optional
+}
+
+
+class UserService {
+	{field} -passwordEncoder : PasswordEncoder
+	{method} +login ( paramString1 : String , paramString2 : String ) : String
+	{method} +register ( paramRegisterDTO1 : RegisterDTO ) : void
+}
+
+
+
+
+BackblazeB2Service *--  BackblazeB2Properties : properties
+CustomUserDetailService *--  UserRepository : userRepository
+FileController *--  FileDtoMapper : fileDtoMapper
+FileController *--  FileService : fileService
+FileController *--  UserRepository : userRepository
+FileData -->  User : user
+FileExpirationCleaner *--  BackblazeB2Service : backblazeB2Service
+FileExpirationCleaner *--  FileRepository : fileRepository
+FileService *--  BackblazeB2Service : backblazeB2Service
+FileService *--  FileProperties : fileProperties
+FileService *--  FileRepository : fileDataRepository
+FileService *--  UserRepository : userRepository
+JwtAuthenticationFilter *--  JwtService : jwtService
+JwtAuthenticationFilter *--  UserRepository : userRepository
+SpringSecurityConfig -->  CustomUserDetailService : customUserDetailService
+SpringSecurityConfig -->  JwtAuthenticationFilter : jwtAuthenticationFilter
+UserController *--  UserService : userService
+UserService *--  JwtService : jwtService
+UserService *--  UserRepository : userRepository
+
+
+@enduml

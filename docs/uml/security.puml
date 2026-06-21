@@ -1,0 +1,40 @@
+@startuml
+
+class CustomUserDetailService {
+	{field} -userRepository : UserRepository
+	{method} +loadUserByUsername ( paramString1 : String ) : UserDetails
+}
+
+
+class JwtAuthenticationFilter {
+	{field} -jwtService : JwtService
+	{field} {static} -log : Logger
+	{field} -userRepository : UserRepository
+	{method} #doFilterInternal ( paramHttpServletRequest1 : HttpServletRequest , paramHttpServletResponse2 : HttpServletResponse , paramFilterChain3 : FilterChain ) : void
+}
+
+
+class SecurityConstants {
+	{field} {static} +AUTH_COOKIE_MAX_AGE_SECONDS : long
+	{field} {static} +AUTH_TOKEN_COOKIE_NAME : String
+	{field} {static} +PUBLIC_ENDPOINTS : String[]
+	{field} {static} +PUBLIC_PATHS : Set
+}
+
+
+class SpringSecurityConfig {
+	{field} -corsConfigurationSource : CorsConfigurationSource
+	{method} +authenticationManager ( paramAuthenticationConfiguration1 : AuthenticationConfiguration ) : AuthenticationManager
+	{method} +authenticationProvider () : DaoAuthenticationProvider
+	{method} +passwordEncoder () : PasswordEncoder
+	{method} +securityFilterChain ( paramHttpSecurity1 : HttpSecurity ) : SecurityFilterChain
+}
+
+
+
+
+SpringSecurityConfig -->  CustomUserDetailService : customUserDetailService
+SpringSecurityConfig -->  JwtAuthenticationFilter : jwtAuthenticationFilter
+
+
+@enduml

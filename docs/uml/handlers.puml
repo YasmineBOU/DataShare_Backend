@@ -1,0 +1,85 @@
+@startuml
+
+class ErrorDetails {
+	{field} +details : String
+	{field} +message : String
+	{field} +timestamp : LocalDateTime
+}
+
+
+class FileDeletionException {
+}
+
+
+class FileExceptionHandler {
+	{method} -getErrorDetails ( paramException1 : Exception , paramWebRequest2 : WebRequest ) : ErrorDetails
+	{method} #handleFileDeletionException ( paramFileDeletionException1 : FileDeletionException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileExpiredException ( paramFileExpiredException1 : FileExpiredException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileExtensionException ( paramFileExtensionException1 : FileExtensionException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileHashComputationException ( paramFileHashComputationException1 : FileHashComputationException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileHashMismatchException ( paramFileHashMismatchException1 : FileHashMismatchException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileLinkGenerationException ( paramFileLinkGenerationException1 : FileLinkGenerationException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileLinkNullException ( paramFileLinkNullException1 : FileLinkNullException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileNotFoundException ( paramFileNotFoundException1 : FileNotFoundException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleFileSizeExceededException ( paramFileSizeExceededException1 : FileSizeExceededException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleInvalidPasswordException ( paramInvalidPasswordException1 : InvalidPasswordException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} -logError ( paramException1 : Exception ) : void
+}
+
+
+class FileExpiredException {
+}
+
+
+class FileExtensionException {
+}
+
+
+class FileHashComputationException {
+}
+
+
+class FileHashMismatchException {
+}
+
+
+class FileLinkGenerationException {
+}
+
+
+class FileLinkNullException {
+}
+
+
+class FileNotFoundException {
+}
+
+
+class FileSizeExceededException {
+}
+
+
+class InvalidPasswordException {
+}
+
+
+class RestExceptionHandler {
+	{method} -getErrorDetails ( paramException1 : Exception , paramWebRequest2 : WebRequest ) : ErrorDetails
+	{method} #handleBadCredentialsException ( paramBadCredentialsException1 : BadCredentialsException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleConflict ( paramRuntimeException1 : RuntimeException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleException ( paramRuntimeException1 : RuntimeException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleForbiddenException ( paramAccessDeniedException1 : AccessDeniedException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} #handleUserAlreadyExistsException ( paramUserAlreadyExistsException1 : UserAlreadyExistsException , paramWebRequest2 : WebRequest ) : ResponseEntity
+	{method} -logError ( paramException1 : Exception ) : void
+}
+
+
+class UserAlreadyExistsException {
+}
+
+
+
+
+
+
+@enduml

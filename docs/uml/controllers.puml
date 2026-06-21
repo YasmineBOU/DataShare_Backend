@@ -1,0 +1,31 @@
+@startuml
+
+class FileController {
+	{field} -fileDtoMapper : FileDtoMapper
+	{field} -fileService : FileService
+	{field} {static} -log : Logger
+	{field} -userRepository : UserRepository
+	{method} +deleteFile ( paramUser1 : User , paramLong2 : Long ) : ResponseEntity
+	{method} +downloadFile ( paramFileDownloadDTO1 : FileDownloadDTO ) : ResponseEntity
+	{method} +getFileInfo ( paramUser1 : User , paramString2 : String ) : ResponseEntity
+	{method} +listFiles ( paramUser1 : User , paramString2 : String ) : ResponseEntity
+	{method} +uploadFile ( paramFileUploadDTO1 : FileUploadDTO ) : ResponseEntity
+}
+
+
+class UserController {
+	{field} -cookieSecure : boolean
+	{field} {static} -log : Logger
+	{field} -userService : UserService
+	{method} +login ( paramAuthDTO1 : AuthDTO , paramHttpServletResponse2 : HttpServletResponse ) : ResponseEntity
+	{method} +logout ( paramHttpServletResponse1 : HttpServletResponse ) : ResponseEntity
+	{method} +me () : ResponseEntity
+	{method} +register ( paramRegisterDTO1 : RegisterDTO ) : ResponseEntity
+}
+
+
+
+
+
+
+@enduml

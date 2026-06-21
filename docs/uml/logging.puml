@@ -1,0 +1,12 @@
+@startuml
+
+class RequestLoggingFilterConfig {
+	{method} +commonsRequestLoggingFilter () : CommonsRequestLoggingFilter
+}
+
+
+
+
+
+
+@enduml

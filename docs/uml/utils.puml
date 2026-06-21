@@ -1,0 +1,16 @@
+@startuml
+
+class FileUtils {
+	{method}  {static} -bytesToHex ( param[B1 : byte[] ) : String
+	{method}  {static} +calculateFileHash ( paramMultipartFile1 : MultipartFile ) : String
+	{method}  {static} +generateUniqueFileToken ( paramString1 : String , paramString2 : String , paramint3 : int ) : String
+	{method}  {static} +getFileExtension ( paramString1 : String ) : String
+	{method}  {static} +parseFileSize ( paramString1 : String ) : long
+}
+
+
+
+
+
+
+@enduml

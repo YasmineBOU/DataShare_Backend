@@ -1,0 +1,54 @@
+@startuml
+
+class BackblazeB2Service {
+	{field} {static} -MULTIPART_CHUNK_SIZE : int
+	{field} {static} -MULTIPART_THRESHOLD_BYTES : long
+	{field} {static} -log : Logger
+	{field} -properties : BackblazeB2Properties
+	{field} -s3Client : S3Client
+	{field} -s3Presigner : S3Presigner
+	{method} +deleteFile ( paramString1 : String ) : void
+	{method} +generatePresignedUrl ( paramString1 : String , paramDuration2 : Duration ) : URL
+	{method} -generateUniqueKey ( paramString1 : String , paramString2 : String ) : String
+	{method} +uploadFile ( paramMultipartFile1 : MultipartFile , paramString2 : String ) : String
+	{method} -uploadMultipartFile ( paramMultipartFile1 : MultipartFile , paramString2 : String , paramString3 : String ) : String
+}
+
+
+class FileService {
+	{field} -fileDataRepository : FileRepository
+	{field} -fileProperties : FileProperties
+	{field} {static} -log : Logger
+	{field} -passwordEncoder : PasswordEncoder
+	{field} -userRepository : UserRepository
+	{method} +deleteFile ( paramUser1 : User , paramLong2 : Long ) : void
+	{method} +downloadFile ( paramLong1 : Long , paramString2 : String ) : String
+	{method} +getFileInfoByFileToken ( paramString1 : String ) : FileInfoDTO
+	{method} +listFiles ( paramUser1 : User , paramString2 : String ) : Iterable
+	{method} +uploadFile ( paramMultipartFile1 : MultipartFile , paramFileData2 : FileData , paramint3 : int ) : String
+}
+
+
+class JwtService {
+	{field} -encodedKey : Key
+	{field} -jwtExpirationMs : long
+	{method} +generateToken ( paramUserDetails1 : UserDetails ) : String
+	{method} +validateTokenAndGetUsername ( paramString1 : String ) : String
+}
+
+
+class UserService {
+	{field} -passwordEncoder : PasswordEncoder
+	{field} -userRepository : UserRepository
+	{method} +login ( paramString1 : String , paramString2 : String ) : String
+	{method} +register ( paramRegisterDTO1 : RegisterDTO ) : void
+}
+
+
+
+
+FileService *--  BackblazeB2Service : backblazeB2Service
+UserService *--  JwtService : jwtService
+
+
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+
+class FileExpirationCleaner {
+	{field} -backblazeB2Service : BackblazeB2Service
+	{field} -fileRepository : FileRepository
+	{field} {static} -log : Logger
+	{method} +cleanExpiredFiles () : void
+}
+
+
+
+
+
+
+@enduml
