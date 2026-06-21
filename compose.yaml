@@ -9,5 +9,27 @@ services:
       - '5432:5432'
     volumes:
       - db_data:/var/lib/postgresql/data
+  
+  # SchemaSpy service for generating database schema documentation (Uncomment to use)
+  # schemaspy:
+  #   image: schemaspy/schemaspy:latest
+  #   depends_on:
+  #     - postgres
+  #   volumes:
+  #     - ./docs/schema:/output
+  #   environment:
+  #     - SCHEMASPY_CONNECTION_TIMEOUT=10
+  #   command: >
+  #     -t pgsql
+  #     -host postgres
+  #     -port 5432
+  #     -db ${DB_NAME}
+  #     -u ${DB_USER}
+  #     -p ${DB_PASSWORD}
+  #     -schemas public
+  #     -norows
+  #   profiles:
+  #     - tools
+
 volumes:
   db_data:
