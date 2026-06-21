@@ -14,7 +14,7 @@ public class FileDownloadDTO {
      * Unique identifier of the file to download.
      * This field is required and cannot be null.
      */
-    @NotNull
+    @NotNull(message = "File ID is required")
     private Long id;
 
     /**

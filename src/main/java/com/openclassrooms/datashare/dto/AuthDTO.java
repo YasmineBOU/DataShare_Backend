@@ -15,13 +15,13 @@ public class AuthDTO {
      * User's email address.
      * Must be a valid email format and not blank.
      */
-    @NotBlank
-    @Email
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
     private String email;
 
     /**
      * User's password.
      */
-    @NotBlank
+    @NotBlank(message = "Password is required")
     private String password;
 }

@@ -26,8 +26,8 @@ public class RegisterDTO {
      * User's email address.
      * Must be a valid email format and not blank.
      */
-    @NotBlank
-    @Email
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
     private String email;
 
     /**
@@ -40,8 +40,8 @@ public class RegisterDTO {
      * <li>Contains at least one uppercase letter (A-Z).</li>
      * </ul>
      */
-    @NotBlank
-    @Size(min = 8)
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).*$")
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).*$", message = "Password must contain at least one digit, one lowercase letter, and one uppercase letter")
     private String password;
 }

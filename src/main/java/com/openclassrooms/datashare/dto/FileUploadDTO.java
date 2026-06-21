@@ -57,9 +57,11 @@ public class FileUploadDTO {
 
     /**
      * Optional password to protect the file.
-     * Must be at least 6 characters long if provided.
+     * Must be at least 6 characters and contain at least
+     * one letter and one digit, but can be long if provided.
      */
     @Size(min = 6, message = "File password must be at least 6 characters long")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]$", message = "File password must contain at least one letter and one digit")
     private String filePassword;
 
     /**
