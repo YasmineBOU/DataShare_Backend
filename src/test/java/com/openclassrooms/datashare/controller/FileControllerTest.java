@@ -189,7 +189,7 @@ public class FileControllerTest {
             fileUploadDTO.setFileType(FILE_TYPE);
             fileUploadDTO.setHash(FILE_HASH);
             fileUploadDTO.setExpirationDays(EXPIRATION_DAYS);
-            fileUploadDTO.setFilePassword("password"); // Valid password
+            fileUploadDTO.setFilePassword("123456a"); // Valid password
 
             String fileToken = "generated-token-123";
             when(fileService.uploadFile(any(), any(), anyInt())).thenReturn(fileToken);
