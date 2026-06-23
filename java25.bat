@@ -21,7 +21,7 @@ cd /d "%~dp0"
 
 @REM Check for .env file
 if "%~1"=="" (
-	echo Usage: %~nx0 ^<run^|test^|jacoco^|doc^|uml^> [extra]
+	echo Usage: %~nx0 ^<run^|run_with_tests|test^|jacoco^|doc^|uml^> [extra]
 	exit /b 1
 )
 

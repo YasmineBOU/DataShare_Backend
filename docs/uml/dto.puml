@@ -1,5 +1,77 @@
 @startuml
 
+class AuthDTO {
+	{field} +email : String
+	{field} +password : String
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class AuthMeDTO {
+	{field} -authenticated : boolean
+	{field} -email : String
+	{method} +authenticated () : boolean
+	{method} +email () : String
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class FileDownloadDTO {
+	{field} +filePassword : String
+	{field} +id : Long
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class FileInfoDTO {
+	{field} +createdAt : LocalDateTime
+	{field} +expirationDate : LocalDateTime
+	{field} +fileSize : long
+	{field} +fileToken : String
+	{field} +filename : String
+	{field} +hasPassword : Boolean
+	{field} +id : Long
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class FileUploadDTO {
+	{field} +email : String
+	{field} +expirationDays : Integer
+	{field} +file : MultipartFile
+	{field} +filePassword : String
+	{field} +fileSize : long
+	{field} +fileType : String
+	{field} +filename : String
+	{field} +hash : String
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
+class RegisterDTO {
+	{field} +email : String
+	{field} +password : String
+	{method} #canEqual ( paramObject1 : Object ) : boolean
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +toString () : String
+}
+
+
 
 
 

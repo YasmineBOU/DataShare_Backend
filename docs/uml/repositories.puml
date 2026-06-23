@@ -1,5 +1,18 @@
 @startuml
 
+interface FileRepository {
+	{method}  {abstract} +findByFileKey ( paramString1 : String ) : Optional
+	{method}  {abstract} +findExpiredFiles ( paramLocalDateTime1 : LocalDateTime ) : List
+	{method}  {abstract} +findFileInfoByFileToken ( paramString1 : String ) : Optional
+	{method}  {abstract} +findFilesByEmail ( paramString1 : String ) : List
+}
+
+
+interface UserRepository {
+	{method}  {abstract} +findByEmail ( paramString1 : String ) : Optional
+}
+
+
 
 
 
