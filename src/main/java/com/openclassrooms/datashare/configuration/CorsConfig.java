@@ -63,7 +63,9 @@ public class CorsConfig {
         // Frontend URL - adjust to your environment
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:4200",
-                "https://localhost:4200"));
+                "https://localhost:4200",
+                "http://localhost",
+                "https://localhost"));
 
         // Allowed HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
