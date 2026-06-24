@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: DataShare
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+  output:
+    ansi:
+      enabled: ALWAYS
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1GB
+      max-request-size: 1GB
+
+server:
+  port: ${SERVER_PORT:8443}
+  ssl:
+    enabled: ${SERVER_SSL_ENABLED:true}
+    key-store: ${SERVER_SSL_KEY_STORE:ssl/datashare-dev.p12}
+    key-store-password: ${SERVER_SSL_KEY_STORE_PASSWORD:changeit}
+    key-store-type: ${SERVER_SSL_KEY_STORE_TYPE:PKCS12}
+    key-alias: ${SERVER_SSL_KEY_ALIAS:datashare-dev}
+  tomcat:
+    # Thread pool for handling concurrent requests
+    threads:
+      max: 50 # Maximum threads 
+      min-spare: 10 # Minimum idle threads
+    max-connections: 100 # Max TCP connections
+    accept-count: 50 # Queue size when all threads are busy
+    # File upload configuration
+    max-http-form-post-size: 1GB
+    max-swallow-size: 1GB
+    connection-timeout: 3600000 # 1 hour in milliseconds
+    max-http-header-size: 65536 # 64KB
+
+logging:
+  level:
+    org:
+      hibernate:
+        type: INFO
+      springframework:
+        security: DEBUG
+        web:
+          multipart: DEBUG
+          filter:
+            CommonsRequestLoggingFilter: INFO
+    com:
+      openclassrooms:
+        datashare: INFO
+    root: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+com:
+  openclassrooms:
+    datashare:
+      jwt:
+        secret-key: ${JWT_SECRET_KEY}
+        expiration-ms: ${JWT_EXPIRATION_MS}
+      cookie:
+        secure: ${COOKIE_SECURE:true}
+      file:
+        forbidden-extensions: .exe,.bat,.sh,.js,.php,.py,.pl,.rb,.jar,.dll,.so,.bin,.cmd,.com,.cpl,.msc,.msi,.reg,.scr,.vb,.vbs,.ws,.wsh
+
+scheduler:
+  file-expiration:
+    enabled: true
+    cron: "0 0 */1 * * ?" # Every hour at minute 0
+
+# Backblaze B2 Configuration
+b2:
+  endpoint: ${B2_ENDPOINT}
+  region: ${B2_REGION}
+  bucket-name: ${B2_BUCKET_NAME}
+  key-id: ${B2_KEY_ID}
+  application-key: ${B2_APPLICATION_KEY}
