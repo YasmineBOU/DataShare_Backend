@@ -65,7 +65,9 @@ public class CorsConfig {
                 "http://localhost:4200",
                 "https://localhost:4200",
                 "http://localhost",
-                "https://localhost"));
+                "https://localhost",
+                "http://localhost:8081",
+                "https://localhost:8081"));
 
         // Allowed HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
