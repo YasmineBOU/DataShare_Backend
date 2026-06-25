@@ -1,4 +1,4 @@
-# Étape 1 : Construction du JAR
+# Step1: Build the JAR
 FROM amazoncorretto:25-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache maven
@@ -6,16 +6,16 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Étape 2 : Exécution
+# Step 2: Run the JAR
 FROM amazoncorretto:25-alpine
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
-# On expose le port
+# Make public the port 8080 for the application
 EXPOSE 8080
 
-# --- LOGIQUE AUTOMATIQUE AU DÉMARRAGE ---
-# Si le fichier .p12 n'existe pas dans le dossier ssl/, on le génère à la volée avant de lancer l'app Java
+# --- Automatic startup logic ---
+# If the .p12 file does not exist in the ssl/ folder, we generate it on the fly before starting the Java app
 ENTRYPOINT ["/bin/sh", "-c", "\
 mkdir -p ssl && \
 if [ ! -f ssl/datashare-dev.p12 ]; then \
